@@ -1,0 +1,135 @@
+Script started on 2019-10-15 11:59:06+02:00 [TERM="xterm-256color" TTY="/dev/pts/3" COLUMNS="144" LINES="38"]
+]0;siamang@ubuntu-desktop: ~/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src[01;32msiamang@ubuntu-desktop[00m:[01;34m~/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src[00m$ make test
+cd tests; whoami; make jointest
+siamang
+make[1] : on entre dans le répertoire « /home/siamang/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src/tests »
+/usr/lib/jvm/java-11-openjdk-amd64/bin/javac -classpath ./.. TestDriver.java JoinTest.java
+Note: JoinTest.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+/usr/lib/jvm/java-11-openjdk-amd64/bin/java  -classpath ./.. tests.JoinTest
+Replacer: Clock
+
+
+
+Any resemblance of persons in this database to people living or dead
+is purely coincidental. The contents of this database do not reflect
+the views of the University, the Computer  Sciences Department or the
+developers...
+
+**********************Query1 strating *********************
+Query: Find the names of sailors who have reserved boat number 2 (1 to 2).
+       and print out the date of reservation.
+
+  SELECT S.sname, R.date
+  FROM   Sailors S, Reserves R
+  WHERE  S.sid = R.sid AND R.bid = 2
+
+
+(Tests FileScan, Projection, and Sort-Merge Join)
+[Mike Carey, 05/11/95]
+[Yannis Ioannidis, 05/10/95]
+
+Query1 completed successfully!
+*******************Query1 finished!!!*****************
+
+
+
+**********************Query2 strating *********************
+Query: Find the names of sailors who have reserved a red boat
+       and return them in alphabetical order.
+
+  SELECT   S.sname
+  FROM     Sailors S, Boats B, Reserves R
+  WHERE    S.sid = R.sid AND R.bid = B.bid AND B.color = 'red'
+  ORDER BY S.sname
+Plan used:
+ Sort (Pi(sname) (Sigma(B.color='red')  |><|  Pi(sname, bid) (S  |><|  R)))
+
+(Tests File scan, Index scan ,Projection,  index selection,
+ sort and simple nested-loop join.)
+
+After Building btree index on sailors.sid.
+
+[David Dewitt]
+[Mike Carey]
+[Raghu Ramakrishnan]
+[Yannis Ioannidis]
+
+Query2 completed successfully!
+*******************Query2 finished!!!*****************
+
+
+
+**********************Query3 strating *********************
+Query: Find the names of sailors who have reserved a boat.
+
+  SELECT S.sname
+  FROM   Sailors S, Reserves R
+  WHERE  S.sid = R.sid
+
+(Tests FileScan, Projection, and SortMerge Join.)
+
+[Mike Carey]
+[Mike Carey]
+[Mike Carey]
+[David Dewitt]
+[David Dewitt]
+[Jeff Naughton]
+[Miron Livny]
+[Yannis Ioannidis]
+[Raghu Ramakrishnan]
+[Raghu Ramakrishnan]
+
+Query3 completed successfully!
+*******************Query3 finished!!!*****************
+
+
+
+**********************Query4 strating *********************
+Query: Find the names of sailors who have reserved a boat
+       and print each name once.
+
+  SELECT DISTINCT S.sname
+  FROM   Sailors S, Reserves R
+  WHERE  S.sid = R.sid
+
+(Tests FileScan, Projection, Sort-Merge Join and Duplication elimination.)
+
+[David Dewitt]
+[Jeff Naughton]
+[Mike Carey]
+[Miron Livny]
+[Raghu Ramakrishnan]
+[Yannis Ioannidis]
+
+Query4 completed successfully!
+*******************Query4 finished!!!*****************
+
+
+
+**********************Query5 strating *********************
+Query: Find the names of old sailors or sailors with a rating less
+       than 7, who have reserved a boat, (perhaps to increase the
+       amount they have to pay to make a reservation).
+
+  SELECT S.sname, S.rating, S.age
+  FROM   Sailors S, Reserves R
+  WHERE  S.sid = R.sid and (S.age > 40 || S.rating < 7)
+
+(Tests FileScan, Multiple Selection, Projection, and Sort-Merge Join.)
+
+[Mike Carey, 9, 40.3]
+[Mike Carey, 9, 40.3]
+[Mike Carey, 9, 40.3]
+[David Dewitt, 10, 47.2]
+[David Dewitt, 10, 47.2]
+[Jeff Naughton, 5, 35.0]
+[Yannis Ioannidis, 8, 40.2]
+
+Query5 completed successfully!
+*******************Query5 finished!!!*****************
+
+
+
+**********************Query6 strating *********************
+Query: Find the na
