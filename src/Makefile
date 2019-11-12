@@ -42,7 +42,8 @@ doc:
 	$(JAVADOC) $(DOCFILES)
 
 test: 
-	cd tests; whoami; make jointest
+	# cd tests; whoami; make jointest
+	cd tests; make bmtest bmtest2
 	# cd tests; make bmtest dbtest; whoami; make hftest bttest indextest
 
 clean:

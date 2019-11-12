@@ -13,6 +13,12 @@ BMTest:BMTest.java
 bmtest: BMTest
 	$(JAVA) tests.BMTest
 
+BMTest2:BMTest2.java
+	$(JAVAC) TestDriver.java BMTest2.java
+
+bmtest2: BMTest2
+	$(JAVA) tests.BMTest2
+
 # test disk manager
 
 DBTest:DBTest.java
