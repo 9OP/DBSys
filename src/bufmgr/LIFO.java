@@ -80,7 +80,7 @@ class LIFO extends Replacer {
    * @return return the frame number return -1 if failed
    */
 
-  public int pick_victim() {
+  public int pick_victim() throws BufferPoolExceededException {
     int numBuffers = mgr.getNumBuffers();
     int frame;
 
@@ -93,7 +93,7 @@ class LIFO extends Replacer {
     }
 
     /* Search the first in, go from right to left */
-    for (int i = numBuffers; i > 0; --i) {
+    for (int i = numBuffers-1; i >= 0; --i) {
       frame = frames[i];
       if (state_bit[frame].state != Pinned) {
         state_bit[frame].state = Pinned;
@@ -102,8 +102,8 @@ class LIFO extends Replacer {
         return frame;
       }
     }
-    return 0;
-    // throw new BufferPoolExceededException(null, "BUFMGR : BUFFER EXCEEDED");
+
+    throw new BufferPoolExceededException(null, "BUFMGR : BUFFER EXCEEDED");
   }
 
   /**
