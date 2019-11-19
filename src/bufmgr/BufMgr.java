@@ -437,12 +437,10 @@ public class BufMgr implements GlobalConst {
       } else if (replacerArg.compareTo("LIFO") == 0) {
         replacer = new LIFO(this);
         System.out.println("Replacer: LIFO\n");
-      }
-      /*
-       * else if(replacerArg.compareTo("LRUK")==0) { replacer = new LRUK(this);
-       * System.out.println("Replacer: LRUK\n"); }
-       */
-      else {
+      } else if (replacerArg.compareTo("LRUK") == 0) {
+        replacer = new LRUK(this);
+        System.out.println("Replacer: LRUK\n");
+      } else {
         replacer = new Clock(this);
         System.out.println("Replacer:Unknown, Use Clock\n");
       }

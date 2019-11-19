@@ -1,4 +1,4 @@
-/* File FIFO.java */
+/* File LIFO.java */
 
 package bufmgr;
 
@@ -6,7 +6,7 @@ import diskmgr.*;
 import global.*;
 
 /**
- * class LIFO is a subclass of class Replacer using FIFO algorithm for page replacement
+ * class LIFO is a subclass of class Replacer using LIFO algorithm for page replacement
  */
 class LIFO extends Replacer {
 

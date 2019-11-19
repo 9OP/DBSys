@@ -1,4 +1,4 @@
-/* File LRU.java */
+/* File LRUK.java */
 
 package bufmgr;
 
@@ -6,7 +6,7 @@ import diskmgr.*;
 import global.*;
 
 /**
- * class LRU is a subclass of class Replacer using LRU algorithm for page replacement
+ * class LRUK is a subclass of class Replacer using LRUK algorithm for page replacement
  */
 class LRUK extends Replacer {
 
@@ -76,7 +76,7 @@ class LRUK extends Replacer {
   }
 
   /**
-   * Finding a free frame in the buffer pool or choosing a page to replace using LRU policy
+   * Finding a free frame in the buffer pool or choosing a page to replace using LRUK policy
    *
    * @return return the frame number return -1 if failed
    */
@@ -113,7 +113,7 @@ class LRUK extends Replacer {
    * @return return the name of replacement policy used
    */
   public String name() {
-    return "LRU";
+    return "LRUK";
   }
 
   /**
@@ -122,7 +122,7 @@ class LRUK extends Replacer {
   public void info() {
     super.info();
 
-    System.out.print("LRU REPLACEMENT");
+    System.out.print("LRUK REPLACEMENT");
 
     for (int i = 0; i < nframes; i++) {
       if (i % 5 == 0)
