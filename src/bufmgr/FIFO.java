@@ -83,12 +83,11 @@ class FIFO extends  Replacer {
 
   /**
    * Finding a free frame in the buffer pool
-   * or choosing a page to replace using LRU policy
+   * or choosing a page to replace using FIFO policy
    *
    * @return 	return the frame number
    *		return -1 if failed
    */
-
   public int pick_victim()
   {
     int numBuffers = mgr.getNumBuffers();
@@ -120,7 +119,7 @@ class FIFO extends  Replacer {
    *
    * @return	return the name of replacement policy used
    */  
-    public String name() { return "LRU"; }
+    public String name() { return "FIFO"; }
  
   /**
    * print out the information of frame usage
@@ -129,7 +128,7 @@ class FIFO extends  Replacer {
   {
     super.info();
 
-    System.out.print( "LRU REPLACEMENT" );
+    System.out.print( "FIFO REPLACEMENT" );
     
     for (int i = 0; i < nframes; i++) {
         if (i % 5 == 0)
