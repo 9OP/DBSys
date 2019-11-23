@@ -70,7 +70,6 @@ class LRU extends Replacer {
    */
   public void pin(int frameNo) throws InvalidFrameNumberException {
     super.pin(frameNo);
-
     update(frameNo);
 
   }
