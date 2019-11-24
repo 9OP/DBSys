@@ -1,135 +1,113 @@
-Script started on 2019-10-15 11:59:06+02:00 [TERM="xterm-256color" TTY="/dev/pts/3" COLUMNS="144" LINES="38"]
-]0;siamang@ubuntu-desktop: ~/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src[01;32msiamang@ubuntu-desktop[00m:[01;34m~/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src[00m$ make test
-cd tests; whoami; make jointest
-siamang
-make[1] : on entre dans le répertoire « /home/siamang/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab2/minjava/javaminibase/src/tests »
-/usr/lib/jvm/java-11-openjdk-amd64/bin/javac -classpath ./.. TestDriver.java JoinTest.java
-Note: JoinTest.java uses unchecked or unsafe operations.
-Note: Recompile with -Xlint:unchecked for details.
-/usr/lib/jvm/java-11-openjdk-amd64/bin/java  -classpath ./.. tests.JoinTest
-Replacer: Clock
+# cd tests; whoami; make jointest
+cd tests; make bmtest2
+make[1]: Entering directory '/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Labs/lab2/src/tests'
+/usr/lib/jvm/java-11-openjdk-amd64/bin/javac -classpath ./.. TestDriver.java BMTest2.java
+/usr/lib/jvm/java-11-openjdk-amd64/bin/java  -classpath ./.. tests.BMTest2
+
+Running Buffer Management tests....
+Replacer: LRUK
 
 
+  Test 1 does simple test on buffer using theFIFOalgorithmmanager operations:
+Replacer: FIFO
 
-Any resemblance of persons in this database to people living or dead
-is purely coincidental. The contents of this database do not reflect
-the views of the University, the Computer  Sciences Department or the
-developers...
+  - Allocate a bunch of new pages
+  - Write something on each one
+  - Read that something back from each one
+   (because we're buffering, this is where most of the writes happen)
+  - Free the pages again
+  Test 1 completed successfully.
 
-**********************Query1 strating *********************
-Query: Find the names of sailors who have reserved boat number 2 (1 to 2).
-       and print out the date of reservation.
+  Test 1 does simple test on buffer using theLIFOalgorithmmanager operations:
+Replacer: LIFO
 
-  SELECT S.sname, R.date
-  FROM   Sailors S, Reserves R
-  WHERE  S.sid = R.sid AND R.bid = 2
+  - Allocate a bunch of new pages
+  - Write something on each one
+  - Read that something back from each one
+   (because we're buffering, this is where most of the writes happen)
+  - Free the pages again
+  Test 1 completed successfully.
 
+  Test 1 does simple test on buffer using theLRUKalgorithmmanager operations:
+Replacer: LRUK
 
-(Tests FileScan, Projection, and Sort-Merge Join)
-[Mike Carey, 05/11/95]
-[Yannis Ioannidis, 05/10/95]
+  - Allocate a bunch of new pages
+  - Write something on each one
+  - Read that something back from each one
+   (because we're buffering, this is where most of the writes happen)
+  - Free the pages again
+  Test 1 completed successfully.
 
-Query1 completed successfully!
-*******************Query1 finished!!!*****************
+  Test 2 exercises some illegal buffer manager operations:FIFO
+Replacer: FIFO
 
+  - Try to pin more pages than there are frames
+  --> Failed as expected 
 
+  - Try to free a doubly-pinned page
+  --> Failed as expected 
 
-**********************Query2 strating *********************
-Query: Find the names of sailors who have reserved a red boat
-       and return them in alphabetical order.
+  - Try to unpin a page not in the buffer pool
+  --> Failed as expected 
 
-  SELECT   S.sname
-  FROM     Sailors S, Boats B, Reserves R
-  WHERE    S.sid = R.sid AND R.bid = B.bid AND B.color = 'red'
-  ORDER BY S.sname
-Plan used:
- Sort (Pi(sname) (Sigma(B.color='red')  |><|  Pi(sname, bid) (S  |><|  R)))
+  Test 2 completed successfully.
 
-(Tests File scan, Index scan ,Projection,  index selection,
- sort and simple nested-loop join.)
+  Test 2 exercises some illegal buffer manager operations:LIFO
+Replacer: LIFO
 
-After Building btree index on sailors.sid.
+  - Try to pin more pages than there are frames
+  --> Failed as expected 
 
-[David Dewitt]
-[Mike Carey]
-[Raghu Ramakrishnan]
-[Yannis Ioannidis]
+  - Try to free a doubly-pinned page
+  --> Failed as expected 
 
-Query2 completed successfully!
-*******************Query2 finished!!!*****************
+  - Try to unpin a page not in the buffer pool
+  --> Failed as expected 
 
+  Test 2 completed successfully.
 
+  Test 2 exercises some illegal buffer manager operations:LRUK
+Replacer: LRUK
 
-**********************Query3 strating *********************
-Query: Find the names of sailors who have reserved a boat.
+  - Try to pin more pages than there are frames
+  --> Failed as expected 
 
-  SELECT S.sname
-  FROM   Sailors S, Reserves R
-  WHERE  S.sid = R.sid
+  - Try to free a doubly-pinned page
+  --> Failed as expected 
 
-(Tests FileScan, Projection, and SortMerge Join.)
+  - Try to unpin a page not in the buffer pool
+  --> Failed as expected 
 
-[Mike Carey]
-[Mike Carey]
-[Mike Carey]
-[David Dewitt]
-[David Dewitt]
-[Jeff Naughton]
-[Miron Livny]
-[Yannis Ioannidis]
-[Raghu Ramakrishnan]
-[Raghu Ramakrishnan]
+  Test 2 completed successfully.
 
-Query3 completed successfully!
-*******************Query3 finished!!!*****************
+  Test 3 exercises some of the internals of the buffer managerFIFO
+Replacer: FIFO
 
+  - Allocate and dirty some new pages, one at a time, and leave some pinned
+  - Read the pages
+  Test 3 completed successfully.
 
+  Test 3 exercises some of the internals of the buffer managerLIFO
+Replacer: LIFO
 
-**********************Query4 strating *********************
-Query: Find the names of sailors who have reserved a boat
-       and print each name once.
+  - Allocate and dirty some new pages, one at a time, and leave some pinned
+  - Read the pages
+  Test 3 completed successfully.
 
-  SELECT DISTINCT S.sname
-  FROM   Sailors S, Reserves R
-  WHERE  S.sid = R.sid
+  Test 3 exercises some of the internals of the buffer managerLRUK
+Replacer: LRUK
 
-(Tests FileScan, Projection, Sort-Merge Join and Duplication elimination.)
+  - Allocate and dirty some new pages, one at a time, and leave some pinned
+  - Read the pages
+  Test 3 completed successfully.
 
-[David Dewitt]
-[Jeff Naughton]
-[Mike Carey]
-[Miron Livny]
-[Raghu Ramakrishnan]
-[Yannis Ioannidis]
+  Test 4 
+Replacer: LRUK
 
-Query4 completed successfully!
-*******************Query4 finished!!!*****************
+- Read the pages
+  Test 4 completed successfully.
 
+...Buffer Management tests completely successfully.
 
-
-**********************Query5 strating *********************
-Query: Find the names of old sailors or sailors with a rating less
-       than 7, who have reserved a boat, (perhaps to increase the
-       amount they have to pay to make a reservation).
-
-  SELECT S.sname, S.rating, S.age
-  FROM   Sailors S, Reserves R
-  WHERE  S.sid = R.sid and (S.age > 40 || S.rating < 7)
-
-(Tests FileScan, Multiple Selection, Projection, and Sort-Merge Join.)
-
-[Mike Carey, 9, 40.3]
-[Mike Carey, 9, 40.3]
-[Mike Carey, 9, 40.3]
-[David Dewitt, 10, 47.2]
-[David Dewitt, 10, 47.2]
-[Jeff Naughton, 5, 35.0]
-[Yannis Ioannidis, 8, 40.2]
-
-Query5 completed successfully!
-*******************Query5 finished!!!*****************
-
-
-
-**********************Query6 strating *********************
-Query: Find the na
+make[1]: Leaving directory '/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Labs/lab2/src/tests'
+# cd tests; make bmtest dbtest; whoami; make hftest bttest indextest
