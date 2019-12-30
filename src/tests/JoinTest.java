@@ -397,7 +397,7 @@ class JoinsDriver implements GlobalConst {
   private void Query2_CondExpr(CondExpr[] expr, CondExpr[] expr2) {
 
     expr[0].next = null;
-    expr[0].op = new AttrOperator(AttrOperator.aopEQ);
+    expr[0].op = new AttrOperator(AttrOperator.aopGT);
     expr[0].type1 = new AttrType(AttrType.attrSymbol);
     expr[0].type2 = new AttrType(AttrType.attrSymbol);
     expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
