@@ -57,6 +57,12 @@ indextest: IndexTest
 JoinTest:JoinTest.java
 	$(JAVAC) TestDriver.java JoinTest.java
 
+JoinTest2:JoinTest2.java
+	$(JAVAC) TestDriver.java JoinTest2.java
+
 jointest: JoinTest
 	$(JAVA) tests.JoinTest
+
+jointest2: JoinTest2
+	$(JAVA) tests.JoinTest2
 
