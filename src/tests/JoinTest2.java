@@ -1,4 +1,8 @@
 package tests;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 // originally from : joins.C
 
 import iterator.*;
@@ -63,6 +67,37 @@ class JoinsDriver implements GlobalConst {
   /**
    * Constructor
    */
+
+  public void populateData(String pathtodata, String filename, Vector table) {
+    pathtodata = new File(".").getAbsolutePath() + pathtodata;
+    BufferedReader reader;
+    try {
+			reader = new BufferedReader(new FileReader(
+					pathtodata + filename));
+      String line = reader.readLine();
+      if (line != null) {
+        line = reader.readLine();  // don't parse the headers
+      }
+			while (line != null) {
+        String[] tableAttrs = line.trim().split(",");
+        int[] parsedAttrs = new int[tableAttrs.length];
+        for (int i=0; i < tableAttrs.length; ++i) {
+          parsedAttrs[i] = Integer.parseInt(tableAttrs[i]);
+        }
+        if (filename.split(".")[0] == "R") {
+          table.addElement(new R(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
+        } else {
+          table.addElement(new S(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
+        }
+				// read next line
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+  }
+
   public JoinsDriver() {
 
     // build Sailor, Boats, Reserves table
@@ -70,36 +105,18 @@ class JoinsDriver implements GlobalConst {
     S = new Vector();
 
     String pathtodata="../../QueriesData_newvalues/";
+
+    populateData(pathtodata, "S.txt", S);
+    populateData(pathtodata, "R.txt", R);
+
     boolean status = OK;
-    int numS;
-    int numS_attrs;
-    int numR;
-    int numR_attrs;
+    int numS = S.size();
+    int numS_attrs = 4;
+    int numR = R.size();
+    int numR_attrs = 4;
 
-    try {
-      BufferedReader rData = new BufferedReader(new FileReader(pathtodata + "R.txt"));
-      BufferedReader sData = new BufferedReader(new FileReader(pathtodata + "S.txt"));
-      String rHead = rData.readLine();
-      String sHead = sData.readLine();
-
-      String[] rType = rHead.split(",");
-      String[] sType = sHead.split(",");
-      numreserves_attrs = rType.length;
-      numsailors_attrs = sType.length;
-
-      while (rData.readLine() != null) 
-        numreserves ++;
-
-      while (sData.readLine() != null) 
-        numreserves ++;
-
-      }
-
-
-
-
-    String dbpath = "/tmp/" + System.getProperty("user.name") + ".minibase.jointestdb";
-    String logpath = "/tmp/" + System.getProperty("user.name") + ".joinlog";
+    String dbpath = "/tmp/" + System.getProperty("user.name") + ".minibase.jointest2db";
+    String logpath = "/tmp/" + System.getProperty("user.name") + ".joinlog2";
 
     String remove_cmd = "/bin/rm -rf ";
     String remove_logcmd = remove_cmd + logpath;
@@ -113,7 +130,6 @@ class JoinsDriver implements GlobalConst {
     } catch (IOException e) {
       System.err.println("" + e);
     }
-
 
     /*
      * ExtendedSystemDefs extSysDef = new ExtendedSystemDefs( "/tmp/minibase.jointestdb",
