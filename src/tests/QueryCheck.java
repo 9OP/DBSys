@@ -186,6 +186,17 @@ public class QueryCheck {
     Q6result.addElement(new S2("Raghu Ramakrishnan"));
     Q6result.addElement(new S2("Yannis Ioannidis"));
 
+    Q7result.addElement(new S2("Mike Carey"));
+    Q7result.addElement(new S2("Mike Carey"));
+    Q7result.addElement(new S2("Mike Carey"));
+    Q7result.addElement(new S2("David Dewitt"));
+    Q7result.addElement(new S2("David Dewitt"));
+    Q7result.addElement(new S2("Jeff Naughton"));
+    Q7result.addElement(new S2("Miron Livny"));
+    Q7result.addElement(new S2("Yannis Ioannidis"));
+    Q7result.addElement(new S2("Raghu Ramakrishnan"));
+    Q7result.addElement(new S2("Raghu Ramakrishnan"));
+
 
 
     // more initializing

@@ -82,6 +82,7 @@ class JoinsDriver implements GlobalConst {
     boats = new Vector();
     reserves = new Vector();
 
+    /*
     sailors.addElement(new Sailor(53, "Bob Holloway", 9, 53.6));
     sailors.addElement(new Sailor(54, "Susan Horowitz", 1, 34.2));
     sailors.addElement(new Sailor(57, "Yannis Ioannidis", 8, 40.2));
@@ -132,6 +133,38 @@ class JoinsDriver implements GlobalConst {
     int numreserves_attrs = 3;
     int numboats = 5;
     int numboats_attrs = 3;
+    */
+
+    String pathtodata="/home/siamang/Bureau/EURECOM_FALL_2019-2020/DBSys/Lab4/QueriesData_newvalues/";
+    boolean status = OK;
+    int numsailors;
+    int numsailors_attrs;
+    int numreserves;
+    int numreserves_attrs;
+    int numboats;
+    int numboats_attrs;
+
+    try {
+      BufferedReader rData = new BufferedReader(new FileReader(pathtodata + "R.txt"));
+      BufferedReader sData = new BufferedReader(new FileReader(pathtodata + "S.txt"));
+      String rHead = rData.readLine();
+      String sHead = sData.readLine();
+
+      String[] rType = rHead.split(",");
+      String[] sType = sHead.split(",");
+      numreserves_attrs = rType.length;
+      numsailors_attrs = sType.length;
+
+      while (rData.readLine() != null) 
+        numreserves ++;
+
+      while (sData.readLine() != null) 
+        numreserves ++;
+
+      }
+
+
+
 
     String dbpath = "/tmp/" + System.getProperty("user.name") + ".minibase.jointestdb";
     String logpath = "/tmp/" + System.getProperty("user.name") + ".joinlog";
@@ -368,6 +401,8 @@ class JoinsDriver implements GlobalConst {
     Query5();
     Query6();
 
+    Query7(); // single predicate inequality NLJ
+
 
     System.out.print("Finished joins testing" + "\n");
 
@@ -397,7 +432,7 @@ class JoinsDriver implements GlobalConst {
   private void Query2_CondExpr(CondExpr[] expr, CondExpr[] expr2) {
 
     expr[0].next = null;
-    expr[0].op = new AttrOperator(AttrOperator.aopGT);
+    expr[0].op = new AttrOperator(AttrOperator.aopEQ);
     expr[0].type1 = new AttrType(AttrType.attrSymbol);
     expr[0].type2 = new AttrType(AttrType.attrSymbol);
     expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
@@ -509,6 +544,36 @@ class JoinsDriver implements GlobalConst {
 
     expr2[2] = null;
   }
+
+  private void Query7_CondExpr(CondExpr[] expr, CondExpr[] expr2) {
+
+    expr[0].next = null;
+    expr[0].op = new AttrOperator(AttrOperator.aopLT);
+    expr[0].type1 = new AttrType(AttrType.attrSymbol);
+    expr[0].type2 = new AttrType(AttrType.attrSymbol);
+    expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
+    expr[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 1);
+
+    expr[1] = null;
+
+    expr2[0].next = null;
+    expr2[0].op = new AttrOperator(AttrOperator.aopEQ);
+    expr2[0].type1 = new AttrType(AttrType.attrSymbol);
+    expr2[0].type2 = new AttrType(AttrType.attrSymbol);
+    expr2[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
+    expr2[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 1);
+
+    expr2[1].op = new AttrOperator(AttrOperator.aopEQ);
+    expr2[1].next = null;
+    expr2[1].type1 = new AttrType(AttrType.attrSymbol);
+    expr2[1].type2 = new AttrType(AttrType.attrString);
+    expr2[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 3);
+    expr2[1].operand2.string = "red";
+
+    expr2[2] = null;
+  }
+
+
 
   public void Query1() {
 
@@ -875,7 +940,7 @@ class JoinsDriver implements GlobalConst {
     try {
       sort_names = new Sort(JJtype, (short) 1, JJsize, (iterator.Iterator) nlj2, 1, ascending,
           JJsize[0], 10);
-    } catch (Exception e) {
+    } catch (Exception e) {reserves.in"
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
       Runtime.getRuntime().exit(1);
@@ -1448,6 +1513,261 @@ class JoinsDriver implements GlobalConst {
 
   }
 
+  public void Query7() {
+    System.out.print("**********************Query7 strating *********************\n");
+    boolean status = OK;
+
+    // Sailors, Boats, Reserves Queries.
+    System.out.print("Query: Find the names of sailors who have reserved " + "a red boat\n"
+        + "       and return them in alphabetical order.\n\n" + "  SELECT   S.sname\n"
+        + "  FROM     Sailors S, Boats B, Reserves R\n"
+        + "  WHERE    S.sid < R.sid AND R.bid = B.bid AND B.color = 'red'\n"
+        + "  ORDER BY S.sname\n" + "Plan used:\n" + " Sort (Pi(sname) (Sigma(B.color='red')  "
+        + "|><|  Pi(sname, bid) (S  |><|  R)))\n\n"
+        + "(Tests File scan, Index scan ,Projection,  index selection,\n "
+        + "sort and simple nested-loop join.)\n\n");
+
+    // Build Index first
+    IndexType b_index = new IndexType(IndexType.B_Index);
+
+
+    // ExtendedSystemDefs.MINIBASE_CATALOGPTR.addIndex("sailors.in", "sid", b_index, 1);
+    // }
+    // catch (Exception e) {
+    // e.printStackTrace();
+    // System.err.print ("Failure to add index.\n");
+    // Runtime.getRuntime().exit(1);
+    // }
+
+
+
+    CondExpr[] outFilter = new CondExpr[2];
+    outFilter[0] = new CondExpr();
+    outFilter[1] = new CondExpr();
+
+    CondExpr[] outFilter2 = new CondExpr[3];
+    outFilter2[0] = new CondExpr();
+    outFilter2[1] = new CondExpr();
+    outFilter2[2] = new CondExpr();
+
+    Query7_CondExpr(outFilter, outFilter2);
+    Tuple t = new Tuple();
+    t = null;
+
+    AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),
+        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrReal)};
+
+    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),};
+
+    short[] Ssizes = new short[1];
+    Ssizes[0] = 30;
+    AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
+        new AttrType(AttrType.attrString),};
+
+    short[] Rsizes = new short[1];
+    Rsizes[0] = 15;
+    AttrType[] Btypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),
+        new AttrType(AttrType.attrString),};
+
+    short[] Bsizes = new short[2];
+    Bsizes[0] = 30;
+    Bsizes[1] = 20;
+    AttrType[] Jtypes = {new AttrType(AttrType.attrString), new AttrType(AttrType.attrInteger),};
+
+    short[] Jsizes = new short[1];
+    Jsizes[0] = 30;
+    AttrType[] JJtype = {new AttrType(AttrType.attrString),};
+
+    short[] JJsize = new short[1];
+    JJsize[0] = 30;
+    FldSpec[] proj1 =
+        {new FldSpec(new RelSpec(RelSpec.outer), 2), new FldSpec(new RelSpec(RelSpec.innerRel), 2)}; // S.sname,
+                                                                                                     // R.bid
+
+    FldSpec[] proj2 = {new FldSpec(new RelSpec(RelSpec.outer), 1)};
+
+    FldSpec[] Sprojection =
+        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 2),
+        // new FldSpec(new RelSpec(RelSpec.outer), 3),
+        // new FldSpec(new RelSpec(RelSpec.outer), 4)
+        };
+
+    CondExpr[] selects = new CondExpr[1];
+    selects[0] = null;
+
+
+    // IndexType b_index = new IndexType(IndexType.B_Index);
+    iterator.Iterator am = null;
+
+
+    // _______________________________________________________________
+    // *******************create an scan on the heapfile**************
+    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // create a tuple of appropriate size
+    Tuple tt = new Tuple();
+    try {
+      tt.setHdr((short) 4, Stypes, Ssizes);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+
+    int sizett = tt.size();
+    tt = new Tuple(sizett);
+    try {
+      tt.setHdr((short) 4, Stypes, Ssizes);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+    Heapfile f = null;
+    try {
+      f = new Heapfile("sailors.in");
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+
+    Scan scan = null;
+
+    try {
+      scan = new Scan(f);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    // create the index file
+    BTreeFile btf = null;
+    try {
+      btf = new BTreeFile("BTreeIndex", AttrType.attrInteger, 4, 1);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    RID rid = new RID();
+    int key = 0;
+    Tuple temp = null;
+
+    try {
+      temp = scan.getNext(rid);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+    while (temp != null) {
+      tt.tupleCopy(temp);
+
+      try {
+        key = tt.getIntFld(1);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+
+      try {
+        btf.insert(new IntegerKey(key), rid);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+
+      try {
+        temp = scan.getNext(rid);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+    }
+
+    // close the file scan
+    scan.closescan();
+
+
+    // _______________________________________________________________
+    // *******************close an scan on the heapfile**************
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    System.out.print("After Building btree index on sailors.sid.\n\n");
+    try {
+      am = new IndexScan(b_index, "sailors.in", "BTreeIndex", Stypes, Ssizes, 4, 2, Sprojection,
+          null, 1, false);
+    }
+
+    catch (Exception e) {
+      System.err.println("*** Error creating scan for Index scan");
+      System.err.println("" + e);
+      Runtime.getRuntime().exit(1);
+    }
+
+
+    NestedLoopsJoins nlj = null;
+    try {
+      nlj = new NestedLoopsJoins(Stypes2, 2, Ssizes, Rtypes, 3, Rsizes, 10, am, "reserves.in",
+          outFilter, null, proj1, 2);
+    } catch (Exception e) {
+      System.err.println("*** Error preparing for nested_loop_join");
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    NestedLoopsJoins nlj2 = null;
+    try {
+      nlj2 = new NestedLoopsJoins(Jtypes, 2, Jsizes, Btypes, 3, Bsizes, 10, nlj, "boats.in",
+          outFilter2, null, proj2, 1);
+    } catch (Exception e) {
+      System.err.println("*** Error preparing for nested_loop_join");
+      System.err.println("" + e);
+      Runtime.getRuntime().exit(1);
+    }
+
+    TupleOrder ascending = new TupleOrder(TupleOrder.Ascending);
+    Sort sort_names = null;
+    try {
+      sort_names = new Sort(JJtype, (short) 1, JJsize, (iterator.Iterator) nlj2, 1, ascending,
+          JJsize[0], 10);
+    } catch (Exception e) {
+      System.err.println("*** Error preparing for nested_loop_join");
+      System.err.println("" + e);
+      Runtime.getRuntime().exit(1);
+    }
+
+
+    QueryCheck qcheck2 = new QueryCheck(2);
+
+
+    t = null;
+    try {
+      while ((t = sort_names.get_next()) != null) {
+        t.print(JJtype);
+        qcheck2.Check(t);
+      }
+    } catch (Exception e) {
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    qcheck2.report(2);
+
+    System.out.println("\n");
+    try {
+      sort_names.close();
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+
+    if (status != OK) {
+      // bail out
+
+      Runtime.getRuntime().exit(1);
+    }
+  }
 
   private void Disclaimer() {
     System.out.print("\n\nAny resemblance of persons in this database to"
