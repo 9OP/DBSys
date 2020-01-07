@@ -940,7 +940,7 @@ class JoinsDriver implements GlobalConst {
     try {
       sort_names = new Sort(JJtype, (short) 1, JJsize, (iterator.Iterator) nlj2, 1, ascending,
           JJsize[0], 10);
-    } catch (Exception e) {reserves.in"
+    } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
       Runtime.getRuntime().exit(1);
