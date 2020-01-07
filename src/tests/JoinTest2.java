@@ -63,13 +63,15 @@ class JoinsDriver implements GlobalConst {
   private boolean FAIL = false;
   private Vector S;
   private Vector R;
+  private String pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
+
 
   /**
    * Constructor
    */
 
   public void populateData(String pathtodata, String filename, Vector table) {
-    pathtodata = new File(".").getAbsolutePath() + pathtodata;
+    // pathtodata = new File(".").getAbsolutePath() + pathtodata;
     BufferedReader reader;
     try {
 			reader = new BufferedReader(new FileReader(
@@ -104,7 +106,6 @@ class JoinsDriver implements GlobalConst {
     R = new Vector();
     S = new Vector();
 
-    String pathtodata="../../QueriesData_newvalues/";
 
     populateData(pathtodata, "S.txt", S);
     populateData(pathtodata, "R.txt", R);
