@@ -60,6 +60,8 @@ class JoinsDriver implements GlobalConst {
   private Vector S;
   private Vector R;
 
+  public String pathToData = new File("").getAbsolutePath(); 
+
   /**
    * Constructor
    */
@@ -69,7 +71,6 @@ class JoinsDriver implements GlobalConst {
     R = new Vector();
     S = new Vector();
 
-    String pathtodata="../../QueriesData_newvalues/";
     boolean status = OK;
     int numS=0;
     int numS_attrs=0;
@@ -243,11 +244,22 @@ class JoinsDriver implements GlobalConst {
   public boolean runTests() {
 
     Disclaimer();
+    try {
+      Query1_a();
+    } catch (FileNotFoundException ex) {
+      ;
+    } catch (IOException ex) {
+      ;
+    }
     Query2();
 
     System.out.print("Finished joins testing" + "\n");
 
     return true;
+  }
+
+  private void Query1_a_CondExpr() {
+    ;
   }
 
   private void Query2_CondExpr(CondExpr[] expr, CondExpr[] expr2) {
@@ -276,6 +288,27 @@ class JoinsDriver implements GlobalConst {
     expr2[1].operand2.string = "red";
 
     expr2[2] = null;
+  }
+
+  public void Query1_a() throws FileNotFoundException, IOException{
+    System.out.print("**********************Query1_a strating *********************\n");
+    boolean status = OK;
+
+    try {
+      BufferedReader query = new BufferedReader(new FileReader(pathToData+"/../../QueriesData_newvalues/query_1a.txt"));
+      String line = query.readLine();
+
+      while (line != null) {
+        System.out.println(line);
+        line = query.readLine();
+      }
+      query.close();
+
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
   }
 
   public void Query2() {
