@@ -272,9 +272,9 @@ class JoinsDriver implements GlobalConst {
         t.setIntFld(4, ((R) r.elementAt(i)).int4);
 
       } catch (Exception e) {
-        //System.err.println("*** error in Tuple.setStrFld() ***");
+        System.err.println("*** error in Tuple.setStrFld() ***");
         status = FAIL;
-        //e.printStackTrace();
+        e.printStackTrace();
       }
 
       try {
@@ -360,16 +360,17 @@ class JoinsDriver implements GlobalConst {
 
     CondExpr[] outFilter = new CondExpr[2];
     outFilter[0] = new CondExpr();
-
     outFilter[0].next = null;
     outFilter[0].op = new AttrOperator(op);
     outFilter[0].type1 = new AttrType(AttrType.attrSymbol);
     outFilter[0].type2 = new AttrType(AttrType.attrSymbol);
-    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), Integer.parseInt(whereRel1Col));
-    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), Integer.parseInt(whereRel2Col));
+    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3); //Integer.parseInt(whereRel1Col)
+    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 3); // Integer.parseInt(whereRel2Col)
+    outFilter[1] = null;
 
     Tuple t = new Tuple();
     t = null;
+
 
     AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
@@ -377,11 +378,12 @@ class JoinsDriver implements GlobalConst {
     short[] Ssizes = new short[1];
     Ssizes[0] = 30;
 
-    AttrType[] Rtypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), };
+    AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), 
+      new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
     short[] Rsizes = new short[1];
     Rsizes[0] = 30;
 
-    AttrType[] Jtypes = {new AttrType(AttrType.attrString), new AttrType(AttrType.attrInteger),};
+    AttrType[] Jtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
     short[] Jsizes = new short[1];
     Jsizes[0] = 30;
 
@@ -390,7 +392,10 @@ class JoinsDriver implements GlobalConst {
                                                                                                      // R.1
 
     FldSpec[] Sprojection =
-        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 3),}; //column to project S
+        {new FldSpec(new RelSpec(RelSpec.outer), 1), 
+          new FldSpec(new RelSpec(RelSpec.outer), 2),
+          new FldSpec(new RelSpec(RelSpec.outer), 3), 
+          new FldSpec(new RelSpec(RelSpec.outer), 4),}; //column to project S
     
     CondExpr[] selects = new CondExpr[1];
     selects[0] = null;
@@ -493,7 +498,7 @@ class JoinsDriver implements GlobalConst {
 
     System.out.print("After Building btree index on S.sid\n\n");
     try {
-      am = new IndexScan(b_index, "S.in", "BTreeIndex", Stypes, Ssizes, 4, 2, Sprojection,
+      am = new IndexScan(b_index, "S.in", "BTreeIndex", Stypes, null, 4, 4, Sprojection,
           null, 1, false); //1: col to index in S
     }
     catch (Exception e) {
@@ -505,8 +510,7 @@ class JoinsDriver implements GlobalConst {
 
     NestedLoopsJoins nlj = null;
     try {
-      nlj = new NestedLoopsJoins(Stypes2, 2, null, Rtypes2, 2, null, 10, am, "R.in",
-          outFilter, null, proj1, 2);
+      nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, "R.in", outFilter, null, proj1, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
@@ -517,7 +521,6 @@ class JoinsDriver implements GlobalConst {
     t = null;
     try {
       while ((t = nlj.get_next()) != null) {
-        System.out.println("dans la boucle get_next");
         t.print(Jtypes);
       }
     } catch (Exception e) {
