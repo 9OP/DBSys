@@ -127,9 +127,9 @@ class JoinsDriver implements GlobalConst {
     populateData(pathToData, "R.txt", r);
 
     boolean status = OK;
-    int numS = s.size();
+    int numS = s.size(); //number of entry in s
     int numS_attrs = 4;
-    int numR = r.size();
+    int numR = r.size(); //number of entry in r
     int numR_attrs = 4;
 
     String dbpath = "/tmp/" + System.getProperty("user.name") + ".minibase.jointest2db";
@@ -296,13 +296,13 @@ class JoinsDriver implements GlobalConst {
 
     // Disclaimer();
     try {
-      Query1_a();
+      // Query1_a(); // Single predicate query
+      Query1_b(); // Double predicate query
     } catch (FileNotFoundException ex) {
-      ;
+      ex.printStackTrace();
     } catch (IOException ex) {
-      ;
+      ex.printStackTrace();
     }
-    // Query2();
 
     System.out.print("Finished joins testing" + "\n");
 
@@ -316,10 +316,12 @@ class JoinsDriver implements GlobalConst {
     // LINE 3: Rel1 col# op 1 Rel2 col#
     System.out.println("**********************Query1_a starting *********************");
     boolean status = OK;
-    String selectRel1 = "", selectRel2 = "", selectRel1Col = "", selectRel2Col = "";
-    String rel1 = "", rel2 = "";
-    String whereRel1 = "", whereRel2 = "", whereRel1Col = "", whereRel2Col = "";
-    Integer op = 0;
+    String selectRel1="", selectRel2=""; // Relations to select
+    Integer selectRel1Col=0, selectRel2Col=0; // Columns of relations to select
+    String rel1 = "", rel2 = ""; // FROM relations
+    String whereRel1="", whereRel2=""; // WHERE relations
+    Integer whereRel1Col=0, whereRel2Col=0; // WHERE relations column
+    Integer op = 0; // join operator
     String[] op_string = {"=", "<", ">", "!=", ">=", "<="};
 
     try {
@@ -329,8 +331,8 @@ class JoinsDriver implements GlobalConst {
       String[] line1 = query.readLine().split(" ");
       selectRel1 = line1[0].split("_")[0];
       selectRel2 = line1[1].split("_")[0];
-      selectRel1Col = line1[0].split("_")[1];
-      selectRel2Col = line1[1].split("_")[1];
+      selectRel1Col = Integer.parseInt(line1[0].split("_")[1]);
+      selectRel2Col = Integer.parseInt(line1[1].split("_")[1]);
       // Line2
       String[] line2 = query.readLine().split(" ");
       rel1 = line2[0];
@@ -340,8 +342,8 @@ class JoinsDriver implements GlobalConst {
       op = Integer.parseInt(line3[1]);
       whereRel1 = line3[0].split("_")[0];
       whereRel2 = line3[2].split("_")[0];
-      whereRel1Col = line3[0].split("_")[1];
-      whereRel2Col = line3[2].split("_")[1];
+      whereRel1Col = Integer.parseInt(line3[0].split("_")[1]);
+      whereRel2Col = Integer.parseInt(line3[2].split("_")[1]);
 
       query.close();
     } catch (FileNotFoundException ex) {
@@ -353,7 +355,9 @@ class JoinsDriver implements GlobalConst {
     System.out.print(
         "  SELECT   " + selectRel1 + "." + selectRel1Col + " " + selectRel2 + "." + selectRel2Col
             + "\n" + "  FROM     " + rel1 + " " + rel2 + "\n" + "  WHERE    " + whereRel1 + "."
-            + whereRel1Col + " " + op_string[op] + " " + whereRel2 + "." + whereRel2Col + "\n");
+            + whereRel1Col + " " + op_string[op] + " " + whereRel2 + "." + whereRel2Col + "\n"
+            +"Plan used:\n" + 
+        "  Pi("+selectRel1+"."+selectRel1Col+", "+selectRel2+"."+selectRel2Col+") (S |><| R))\n\n");
 
     // Build Index first
     IndexType b_index = new IndexType(IndexType.B_Index);
@@ -364,17 +368,15 @@ class JoinsDriver implements GlobalConst {
     outFilter[0].op = new AttrOperator(op);
     outFilter[0].type1 = new AttrType(AttrType.attrSymbol);
     outFilter[0].type2 = new AttrType(AttrType.attrSymbol);
-    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 3); //Integer.parseInt(whereRel1Col)
-    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 3); // Integer.parseInt(whereRel2Col)
+    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), whereRel1Col); //Integer.parseInt(whereRel1Col)
+    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), whereRel2Col); // Integer.parseInt(whereRel2Col)
     outFilter[1] = null;
 
     Tuple t = new Tuple();
     t = null;
 
-
     AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), };
     short[] Ssizes = new short[1];
     Ssizes[0] = 30;
 
@@ -387,15 +389,15 @@ class JoinsDriver implements GlobalConst {
     short[] Jsizes = new short[1];
     Jsizes[0] = 30;
 
-    FldSpec[] proj1 =
-        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.innerRel), 1)}; // S.1,
-                                                                                                     // R.1
+    FldSpec[] proj =
+        { new FldSpec(new RelSpec(RelSpec.outer), selectRel1Col),     // S.
+          new FldSpec(new RelSpec(RelSpec.innerRel), selectRel2Col)}; // R. 
 
     FldSpec[] Sprojection =
-        {new FldSpec(new RelSpec(RelSpec.outer), 1), 
+        { new FldSpec(new RelSpec(RelSpec.outer), 1), 
           new FldSpec(new RelSpec(RelSpec.outer), 2),
           new FldSpec(new RelSpec(RelSpec.outer), 3), 
-          new FldSpec(new RelSpec(RelSpec.outer), 4),}; //column to project S
+          new FldSpec(new RelSpec(RelSpec.outer), 4) };
     
     CondExpr[] selects = new CondExpr[1];
     selects[0] = null;
@@ -510,7 +512,7 @@ class JoinsDriver implements GlobalConst {
 
     NestedLoopsJoins nlj = null;
     try {
-      nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, "R.in", outFilter, null, proj1, 2);
+      nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, "R.in", outFilter, null, proj, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
@@ -528,6 +530,246 @@ class JoinsDriver implements GlobalConst {
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
+  }
+
+  public void Query1_b() throws FileNotFoundException, IOException {
+    // Double predicate query
+    // LINE 1: Rel1 col# Rel2 col#
+    // LINE 2: Rel1 Rel2
+    // LINE 3: Rel1 col# op 1 Rel2 col#
+    // LINE 4: AND/OR
+    // LINE 5: Rel1 col# op 2 Rel2 col#
+
+    System.out.println("**********************Query1_b starting *********************");
+    boolean status = OK;
+    String selectRel1="", selectRel2=""; // Relations to select
+    Integer selectRel1Col=0, selectRel2Col=0; // Columns of relations to select
+    String rel1 = "", rel2 = ""; // FROM relations
+    String whereRel1_1="", whereRel2_1="", whereRel1_2="", whereRel2_2=""; // WHERE relations
+    Integer whereRel1Col_1=0, whereRel2Col_1=0, whereRel1Col_2=0, whereRel2Col_2=0; // WHERE relations column
+    Integer op1=0, op2=0; // join operator
+    String interPredicate="";
+    String[] op_string = {"=", "<", ">", "!=", ">=", "<="};
+
+    try {
+      BufferedReader query = new BufferedReader(
+          new FileReader(pathToData + "/../../QueriesData_newvalues/query_1b.txt"));
+      // Line1
+      String[] line1 = query.readLine().split(" ");
+      selectRel1 = line1[0].split("_")[0];
+      selectRel2 = line1[1].split("_")[0];
+      selectRel1Col = Integer.parseInt(line1[0].split("_")[1]);
+      selectRel2Col = Integer.parseInt(line1[1].split("_")[1]);
+      // Line2
+      String[] line2 = query.readLine().split(" ");
+      rel1 = line2[0];
+      rel2 = line2[1];
+      // Line3: 1st predicate
+      String[] line3 = query.readLine().split(" ");
+      op1 = Integer.parseInt(line3[1]);
+      whereRel1_1 = line3[0].split("_")[0];
+      whereRel2_1 = line3[2].split("_")[0];
+      whereRel1Col_1 = Integer.parseInt(line3[0].split("_")[1]);
+      whereRel2Col_1 = Integer.parseInt(line3[2].split("_")[1]);
+      // Line4
+      interPredicate = query.readLine();
+      // Line5: 2nd predicate
+      String[] line5 = query.readLine().split(" ");
+      op2 = Integer.parseInt(line5[1]);
+      whereRel1_2 = line5[0].split("_")[0];
+      whereRel2_2 = line5[2].split("_")[0];
+      whereRel1Col_2 = Integer.parseInt(line5[0].split("_")[1]);
+      whereRel2Col_2 = Integer.parseInt(line5[2].split("_")[1]);
+
+      query.close();
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    System.out.print(
+        "  SELECT   " + selectRel1 + "." + selectRel1Col + " " + selectRel2 + "." + selectRel2Col + "\n" + 
+        "  FROM     " + rel1 + " " + rel2 + "\n" + 
+        "  WHERE    " + whereRel1_1 + "."+ whereRel1Col_1 + " " + op_string[op1] + " " + whereRel2_1 + "." + whereRel2Col_1 +
+        " " + interPredicate +  " " + 
+        whereRel1_2 + "."+ whereRel1Col_2 + " " + op_string[op2] + " " + whereRel2_2 + "." + whereRel2Col_2 + "\n"
+        +"Plan used:\n" + 
+        "  Pi("+selectRel1+"."+selectRel1Col+", "+selectRel2+"."+selectRel2Col+") (S |><| R))\n\n"
+        );
+    /*
+    // Build Index first
+    IndexType b_index = new IndexType(IndexType.B_Index);
+
+    CondExpr[] outFilter = new CondExpr[2];
+    outFilter[0] = new CondExpr();
+    outFilter[0].next = null;
+    outFilter[0].op = new AttrOperator(op);
+    outFilter[0].type1 = new AttrType(AttrType.attrSymbol);
+    outFilter[0].type2 = new AttrType(AttrType.attrSymbol);
+    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), whereRel1Col); //Integer.parseInt(whereRel1Col)
+    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), whereRel2Col); // Integer.parseInt(whereRel2Col)
+    outFilter[1] = null;
+
+    Tuple t = new Tuple();
+    t = null;
+
+    AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
+        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Ssizes = new short[1];
+    Ssizes[0] = 30;
+
+    AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), 
+      new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Rsizes = new short[1];
+    Rsizes[0] = 30;
+
+    AttrType[] Jtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Jsizes = new short[1];
+    Jsizes[0] = 30;
+
+    FldSpec[] proj =
+        { new FldSpec(new RelSpec(RelSpec.outer), selectRel1Col),     // S.
+          new FldSpec(new RelSpec(RelSpec.innerRel), selectRel2Col)}; // R. 
+
+    FldSpec[] Sprojection =
+        { new FldSpec(new RelSpec(RelSpec.outer), 1), 
+          new FldSpec(new RelSpec(RelSpec.outer), 2),
+          new FldSpec(new RelSpec(RelSpec.outer), 3), 
+          new FldSpec(new RelSpec(RelSpec.outer), 4) };
+    
+    CondExpr[] selects = new CondExpr[1];
+    selects[0] = null;
+
+
+    // IndexType b_index = new IndexType(IndexType.B_Index);
+    iterator.Iterator am = null;
+
+
+    // _______________________________________________________________
+    // *******************create an scan on the heapfile**************
+    // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // create a tuple of appropriate size
+    Tuple tt = new Tuple();
+    try {
+      tt.setHdr((short) 4, Stypes, Ssizes);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+
+    int sizett = tt.size();
+    tt = new Tuple(sizett);
+    try {
+      tt.setHdr((short) 4, Stypes, Ssizes);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+    Heapfile f = null;
+    try {
+      f = new Heapfile("S.in");
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+
+    Scan scan = null;
+
+    try {
+      scan = new Scan(f);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    // create the index file
+    BTreeFile btf = null;
+    try {
+      btf = new BTreeFile("BTreeIndex", AttrType.attrInteger, 4, 1);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    RID rid = new RID();
+    int key = 0;
+    Tuple temp = null;
+
+    try {
+      temp = scan.getNext(rid);
+    } catch (Exception e) {
+      status = FAIL;
+      e.printStackTrace();
+    }
+    while (temp != null) {
+      tt.tupleCopy(temp);
+
+      try {
+        key = tt.getIntFld(1);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+
+      try {
+        btf.insert(new IntegerKey(key), rid);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+
+      try {
+        temp = scan.getNext(rid);
+      } catch (Exception e) {
+        status = FAIL;
+        e.printStackTrace();
+      }
+    }
+
+    // close the file scan
+    scan.closescan();
+
+
+    // _______________________________________________________________
+    // *******************close an scan on the heapfile**************
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    System.out.print("After Building btree index on S.sid\n\n");
+    try {
+      am = new IndexScan(b_index, "S.in", "BTreeIndex", Stypes, null, 4, 4, Sprojection,
+          null, 1, false); //1: col to index in S
+    }
+    catch (Exception e) {
+      System.err.println("*** Error creating scan for Index scan");
+      System.err.println("" + e);
+      Runtime.getRuntime().exit(1);
+    }
+
+
+    NestedLoopsJoins nlj = null;
+    try {
+      nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, "R.in", outFilter, null, proj, 2);
+    } catch (Exception e) {
+      System.err.println("*** Error preparing for nested_loop_join");
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    t = null;
+    try {
+      while ((t = nlj.get_next()) != null) {
+        t.print(Jtypes);
+      }
+    } catch (Exception e) {
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+    */
   }
 
   private void Disclaimer() {
