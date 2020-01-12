@@ -38,6 +38,13 @@ class R {
     int3 = _int3;
     int4 = _int4;
   }
+
+  public void show() {
+    System.out.print(int1);
+    System.out.print(int2);
+    System.out.print(int3);
+    System.out.print(int4);
+  }
 }
 
 
@@ -54,6 +61,13 @@ class S {
     int3 = _int3;
     int4 = _int4;
   }
+
+  public void show() {
+    System.out.print(int1);
+    System.out.print(int2);
+    System.out.print(int3);
+    System.out.print(int4);
+  }
 }
 
 
@@ -61,8 +75,8 @@ class JoinsDriver implements GlobalConst {
 
   private boolean OK = true;
   private boolean FAIL = false;
-  private Vector S;
-  private Vector R;
+  private Vector s;
+  private Vector r;
   // private String
   // pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
   public String pathToData = new File("").getAbsolutePath();
@@ -73,6 +87,8 @@ class JoinsDriver implements GlobalConst {
 
   public void populateData(String pathtodata, String filename, Vector table) {
     BufferedReader reader;
+    boolean isR = filename.split("\\.")[0].equals("R");
+    boolean isS = filename.split("\\.")[0].equals("S");
     try {
       reader = new BufferedReader(
           new FileReader(pathToData + "/../../QueriesData_newvalues/" + filename));
@@ -86,10 +102,12 @@ class JoinsDriver implements GlobalConst {
         for (int i = 0; i < tableAttrs.length; ++i) {
           parsedAttrs[i] = Integer.parseInt(tableAttrs[i]);
         }
-        if (filename.split("\\.")[0] == "R") { // escape . (split(regex))
+        if (isR) { 
+          System.out.println("Populating R.txt");
           table.addElement(new R(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
-        if (filename.split("\\.")[0] == "S") {
+        else if (isS) {
+          System.out.println("Populating S.txt");
           table.addElement(new S(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
         // read next line
@@ -104,16 +122,16 @@ class JoinsDriver implements GlobalConst {
   public JoinsDriver() {
 
     // build Sailor, Boats, Reserves table
-    R = new Vector();
-    S = new Vector();
+    r = new Vector();
+    s = new Vector();
 
-    populateData(pathToData, "S.txt", S);
-    populateData(pathToData, "R.txt", R);
+    populateData(pathToData, "S.txt", s);
+    populateData(pathToData, "R.txt", r);
 
     boolean status = OK;
-    int numS = S.size();
+    int numS = s.size();
     int numS_attrs = 4;
-    int numR = R.size();
+    int numR = r.size();
     int numR_attrs = 4;
 
     String dbpath = "/tmp/" + System.getProperty("user.name") + ".minibase.jointest2db";
@@ -123,6 +141,12 @@ class JoinsDriver implements GlobalConst {
     String remove_logcmd = remove_cmd + logpath;
     String remove_dbcmd = remove_cmd + dbpath;
     String remove_joincmd = remove_cmd + dbpath;
+
+
+
+    for (Object obj : s) {
+        System.out.println(obj);
+    }
 
     try {
       Runtime.getRuntime().exec(remove_logcmd);
@@ -184,10 +208,10 @@ class JoinsDriver implements GlobalConst {
 
     for (int i = 0; i < numS; i++) {
       try {
-        t.setIntFld(1, ((S) S.elementAt(i)).int1);
-        t.setIntFld(2, ((S) S.elementAt(i)).int2);
-        t.setIntFld(3, ((S) S.elementAt(i)).int3);
-        t.setIntFld(4, ((S) S.elementAt(i)).int4);
+        t.setIntFld(1, ((S) s.elementAt(i)).int1);
+        t.setIntFld(2, ((S) s.elementAt(i)).int2);
+        t.setIntFld(3, ((S) s.elementAt(i)).int3);
+        t.setIntFld(4, ((S) s.elementAt(i)).int4);
       } catch (Exception e) {
         System.err.println("*** Heapfile error in Tuple.setStrFld() ***");
         status = FAIL;
@@ -250,10 +274,10 @@ class JoinsDriver implements GlobalConst {
 
     for (int i = 0; i < numR; i++) {
       try {
-        t.setIntFld(1, ((R) R.elementAt(i)).int1);
-        t.setIntFld(2, ((R) R.elementAt(i)).int2);
-        t.setIntFld(3, ((R) R.elementAt(i)).int3);
-        t.setIntFld(4, ((R) R.elementAt(i)).int4);
+        t.setIntFld(1, ((R) r.elementAt(i)).int1);
+        t.setIntFld(2, ((R) r.elementAt(i)).int2);
+        t.setIntFld(3, ((R) r.elementAt(i)).int3);
+        t.setIntFld(4, ((R) r.elementAt(i)).int4);
 
       } catch (Exception e) {
         System.err.println("*** error in Tuple.setStrFld() ***");
@@ -275,8 +299,6 @@ class JoinsDriver implements GlobalConst {
       Runtime.getRuntime().exit(1);
     }
   }
-
-
 
   public boolean runTests() {
 
@@ -300,7 +322,7 @@ class JoinsDriver implements GlobalConst {
     // LINE 1: Rel1 col# Rel2 col#
     // LINE 2: Rel1 Rel2
     // LINE 3: Rel1 col# op 1 Rel2 col#
-    System.out.print("**********************Query1_a strating *********************\n");
+    System.out.println("**********************Query1_a starting *********************");
     boolean status = OK;
     String selectRel1 = "", selectRel2 = "", selectRel1Col = "", selectRel2Col = "";
     String rel1 = "", rel2 = "";
@@ -378,9 +400,6 @@ class JoinsDriver implements GlobalConst {
     FldSpec[] Sprojection =
         {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 3),}; //column to project S
     
-    // FldSpec[] Rprojection =
-    //     {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 3),}; //column to project R
-
     CondExpr[] selects = new CondExpr[1];
     selects[0] = null;
 
@@ -494,8 +513,7 @@ class JoinsDriver implements GlobalConst {
 
     NestedLoopsJoins nlj = null;
     try {
-      System.out.println("nlj");
-      nlj = new NestedLoopsJoins(Stypes2, 2, Ssizes, Rtypes2, 2, Rsizes, 10, am, "R.in",
+      nlj = new NestedLoopsJoins(Stypes2, 2, null, Rtypes2, 2, null, 10, am, "R.in",
           outFilter, null, proj1, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
