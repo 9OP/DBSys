@@ -232,10 +232,10 @@ class JoinsDriver implements GlobalConst {
     Rtypes[3] = new AttrType(AttrType.attrInteger);
 
     short[] Rsizes = new short[1];
-    Rsizes[0] = 15;
+    Rsizes[0] = 30;
     t = new Tuple();
     try {
-      t.setHdr((short) 3, Rtypes, Rsizes);
+      t.setHdr((short) 4, Rtypes, Rsizes);
     } catch (Exception e) {
       System.err.println("*** error in Tuple.setHdr() ***");
       status = FAIL;
@@ -272,9 +272,9 @@ class JoinsDriver implements GlobalConst {
         t.setIntFld(4, ((R) r.elementAt(i)).int4);
 
       } catch (Exception e) {
-        System.err.println("*** error in Tuple.setStrFld() ***");
+        //System.err.println("*** error in Tuple.setStrFld() ***");
         status = FAIL;
-        e.printStackTrace();
+        //e.printStackTrace();
       }
 
       try {
