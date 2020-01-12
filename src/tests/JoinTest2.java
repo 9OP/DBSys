@@ -63,9 +63,7 @@ class JoinsDriver implements GlobalConst {
   private boolean FAIL = false;
   private Vector S;
   private Vector R;
-  private String pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
-
-
+  // private String pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
   public String pathToData = new File("").getAbsolutePath(); 
 
   /**
@@ -73,10 +71,9 @@ class JoinsDriver implements GlobalConst {
    */
 
   public void populateData(String pathtodata, String filename, Vector table) {
-    // pathtodata = new File(".").getAbsolutePath() + pathtodata;
     BufferedReader reader;
     try {
-			reader = new BufferedReader(new FileReader(pathtodata + filename));
+			reader = new BufferedReader(new FileReader(pathToData + "/../../QueriesData_newvalues/" + filename));
       String line = reader.readLine();
       if (line != null) {
         line = reader.readLine();  // don't parse the headers
@@ -87,9 +84,9 @@ class JoinsDriver implements GlobalConst {
         for (int i=0; i < tableAttrs.length; ++i) {
           parsedAttrs[i] = Integer.parseInt(tableAttrs[i]);
         }
-        if (filename.split(".")[0] == "R") {
+        if (filename.split("\\.")[0] == "R") { // escape . (split(regex))
           table.addElement(new R(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
-        } else {
+        } if (filename.split("\\.")[0] == "S") {
           table.addElement(new S(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
 				// read next line
@@ -107,8 +104,8 @@ class JoinsDriver implements GlobalConst {
     R = new Vector();
     S = new Vector();
 
-    populateData(pathtodata, "S.txt", S);
-    populateData(pathtodata, "R.txt", R);
+    populateData(pathToData, "S.txt", S);
+    populateData(pathToData, "R.txt", R);
 
     boolean status = OK;
     int numS = S.size();
@@ -280,7 +277,7 @@ class JoinsDriver implements GlobalConst {
 
   public boolean runTests() {
 
-    Disclaimer();
+    // Disclaimer();
     try {
       Query1_a();
     } catch (FileNotFoundException ex) {
@@ -328,24 +325,49 @@ class JoinsDriver implements GlobalConst {
   }
 
   public void Query1_a() throws FileNotFoundException, IOException{
+    // Single predicate query
+    // LINE 1: Rel1 col# Rel2 col#
+    // LINE 2: Rel1 Rel2
+    // LINE 3: Rel1 col# op 1 Rel2 col#
     System.out.print("**********************Query1_a strating *********************\n");
     boolean status = OK;
+    String selectRel1="", selectRel2="", selectRel1Col="", selectRel2Col="";
+    String rel1="", rel2="";
+    String whereRel1="", whereRel2="", whereRel1Col="", whereRel2Col="";
+    Integer op=0;
+    String[] op_string = {"<", ">", "=", ">=", "<="};
 
     try {
       BufferedReader query = new BufferedReader(new FileReader(pathToData+"/../../QueriesData_newvalues/query_1a.txt"));
-      String line = query.readLine();
+      //Line1
+      String[] line1 = query.readLine().split(" ");
+      selectRel1 = line1[0].split("_")[0];
+      selectRel2 = line1[1].split("_")[0];
+      selectRel1Col = line1[0].split("_")[1];
+      selectRel2Col = line1[1].split("_")[1];
+      //Line2
+      String[] line2 = query.readLine().split(" ");
+      rel1 = line2[0];
+      rel2 = line2[1];
+      //Line3
+      String[] line3 = query.readLine().split(" ");
+      op = Integer.parseInt(line3[1]);
+      whereRel1 = line3[0].split("_")[0]; 
+      whereRel2 = line3[2].split("_")[0]; 
+      whereRel1Col = line3[0].split("_")[1]; 
+      whereRel2Col = line3[2].split("_")[1]; 
 
-      while (line != null) {
-        System.out.println(line);
-        line = query.readLine();
-      }
       query.close();
-
     } catch (FileNotFoundException ex) {
       ex.printStackTrace();
     } catch (IOException ex) {
       ex.printStackTrace();
     }
+
+    System.out.print("  SELECT   "+selectRel1+"."+selectRel1Col+" "+selectRel2+"."+selectRel2Col+"\n"
+        + "  FROM     "+rel1+" "+rel2+"\n"
+        + "  WHERE    "+whereRel1+"."+whereRel1Col+" "+op_string[op-1]+" "+whereRel2+"."+whereRel2Col+"\n");
+
   }
 
   public void Query2() {
