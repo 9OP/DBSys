@@ -43,18 +43,18 @@ class R {
 
 // Define the S schema
 class S {
-    public int int1;
-    public int int2;
-    public int int3;
-    public int int4;
-  
-    public S(int _int1, int _int2, int _int3, int _int4) {
-      int1 = _int1;
-      int2 = _int2;
-      int3 = _int3;
-      int4 = _int4;
-    }
+  public int int1;
+  public int int2;
+  public int int3;
+  public int int4;
+
+  public S(int _int1, int _int2, int _int3, int _int4) {
+    int1 = _int1;
+    int2 = _int2;
+    int3 = _int3;
+    int4 = _int4;
   }
+}
 
 
 class JoinsDriver implements GlobalConst {
@@ -63,8 +63,9 @@ class JoinsDriver implements GlobalConst {
   private boolean FAIL = false;
   private Vector S;
   private Vector R;
-  // private String pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
-  public String pathToData = new File("").getAbsolutePath(); 
+  // private String
+  // pathtodata="/media/chaoticdenim/DATA/Work/3A/EURECOM/DBSys/Assignment/QueriesData_newvalues/";
+  public String pathToData = new File("").getAbsolutePath();
 
   /**
    * Constructor
@@ -73,29 +74,31 @@ class JoinsDriver implements GlobalConst {
   public void populateData(String pathtodata, String filename, Vector table) {
     BufferedReader reader;
     try {
-			reader = new BufferedReader(new FileReader(pathToData + "/../../QueriesData_newvalues/" + filename));
+      reader = new BufferedReader(
+          new FileReader(pathToData + "/../../QueriesData_newvalues/" + filename));
       String line = reader.readLine();
       if (line != null) {
-        line = reader.readLine();  // don't parse the headers
+        line = reader.readLine(); // don't parse the headers
       }
-			while (line != null) {
+      while (line != null) {
         String[] tableAttrs = line.trim().split(",");
         int[] parsedAttrs = new int[tableAttrs.length];
-        for (int i=0; i < tableAttrs.length; ++i) {
+        for (int i = 0; i < tableAttrs.length; ++i) {
           parsedAttrs[i] = Integer.parseInt(tableAttrs[i]);
         }
         if (filename.split("\\.")[0] == "R") { // escape . (split(regex))
           table.addElement(new R(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
-        } if (filename.split("\\.")[0] == "S") {
+        }
+        if (filename.split("\\.")[0] == "S") {
           table.addElement(new S(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
-				// read next line
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        // read next line
+        line = reader.readLine();
+      }
+      reader.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public JoinsDriver() {
@@ -225,7 +228,7 @@ class JoinsDriver implements GlobalConst {
 
     size = t.size();
 
-    // inserting the tuple into file "boats"
+    // inserting the tuple into file "R"
     // RID rid;
     f = null;
     try {
@@ -285,77 +288,46 @@ class JoinsDriver implements GlobalConst {
     } catch (IOException ex) {
       ;
     }
-    Query2();
+    // Query2();
 
     System.out.print("Finished joins testing" + "\n");
 
     return true;
   }
 
-  private void Query1_a_CondExpr() {
-    ;
-  }
-
-  private void Query2_CondExpr(CondExpr[] expr, CondExpr[] expr2) {
-
-    expr[0].next = null;
-    expr[0].op = new AttrOperator(AttrOperator.aopEQ);
-    expr[0].type1 = new AttrType(AttrType.attrSymbol);
-    expr[0].type2 = new AttrType(AttrType.attrSymbol);
-    expr[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 1);
-    expr[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 1);
-
-    expr[1] = null;
-
-    expr2[0].next = null;
-    expr2[0].op = new AttrOperator(AttrOperator.aopEQ);
-    expr2[0].type1 = new AttrType(AttrType.attrSymbol);
-    expr2[0].type2 = new AttrType(AttrType.attrSymbol);
-    expr2[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), 2);
-    expr2[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 1);
-
-    expr2[1].op = new AttrOperator(AttrOperator.aopEQ);
-    expr2[1].next = null;
-    expr2[1].type1 = new AttrType(AttrType.attrSymbol);
-    expr2[1].type2 = new AttrType(AttrType.attrString);
-    expr2[1].operand1.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), 3);
-    expr2[1].operand2.string = "red";
-
-    expr2[2] = null;
-  }
-
-  public void Query1_a() throws FileNotFoundException, IOException{
+  public void Query1_a() throws FileNotFoundException, IOException {
     // Single predicate query
     // LINE 1: Rel1 col# Rel2 col#
     // LINE 2: Rel1 Rel2
     // LINE 3: Rel1 col# op 1 Rel2 col#
     System.out.print("**********************Query1_a strating *********************\n");
     boolean status = OK;
-    String selectRel1="", selectRel2="", selectRel1Col="", selectRel2Col="";
-    String rel1="", rel2="";
-    String whereRel1="", whereRel2="", whereRel1Col="", whereRel2Col="";
-    Integer op=0;
-    String[] op_string = {"<", ">", "=", ">=", "<="};
+    String selectRel1 = "", selectRel2 = "", selectRel1Col = "", selectRel2Col = "";
+    String rel1 = "", rel2 = "";
+    String whereRel1 = "", whereRel2 = "", whereRel1Col = "", whereRel2Col = "";
+    Integer op = 0;
+    String[] op_string = {"=", "<", ">", "!=", ">=", "<="};
 
     try {
-      BufferedReader query = new BufferedReader(new FileReader(pathToData+"/../../QueriesData_newvalues/query_1a.txt"));
-      //Line1
+      BufferedReader query = new BufferedReader(
+          new FileReader(pathToData + "/../../QueriesData_newvalues/query_1a.txt"));
+      // Line1
       String[] line1 = query.readLine().split(" ");
       selectRel1 = line1[0].split("_")[0];
       selectRel2 = line1[1].split("_")[0];
       selectRel1Col = line1[0].split("_")[1];
       selectRel2Col = line1[1].split("_")[1];
-      //Line2
+      // Line2
       String[] line2 = query.readLine().split(" ");
       rel1 = line2[0];
       rel2 = line2[1];
-      //Line3
+      // Line3
       String[] line3 = query.readLine().split(" ");
       op = Integer.parseInt(line3[1]);
-      whereRel1 = line3[0].split("_")[0]; 
-      whereRel2 = line3[2].split("_")[0]; 
-      whereRel1Col = line3[0].split("_")[1]; 
-      whereRel2Col = line3[2].split("_")[1]; 
+      whereRel1 = line3[0].split("_")[0];
+      whereRel2 = line3[2].split("_")[0];
+      whereRel1Col = line3[0].split("_")[1];
+      whereRel2Col = line3[2].split("_")[1];
 
       query.close();
     } catch (FileNotFoundException ex) {
@@ -364,90 +336,50 @@ class JoinsDriver implements GlobalConst {
       ex.printStackTrace();
     }
 
-    System.out.print("  SELECT   "+selectRel1+"."+selectRel1Col+" "+selectRel2+"."+selectRel2Col+"\n"
-        + "  FROM     "+rel1+" "+rel2+"\n"
-        + "  WHERE    "+whereRel1+"."+whereRel1Col+" "+op_string[op-1]+" "+whereRel2+"."+whereRel2Col+"\n");
-
-  }
-
-  public void Query2() {
-    System.out.print("**********************Query2 strating *********************\n");
-    boolean status = OK;
-
-    // Sailors, Boats, Reserves Queries.
-    System.out.print("Query: Find the names of sailors who have reserved " + "a red boat\n"
-        + "       and return them in alphabetical order.\n\n" + "  SELECT   S.sname\n"
-        + "  FROM     Sailors S, Boats B, Reserves R\n"
-        + "  WHERE    S.sid = R.sid AND R.bid = B.bid AND B.color = 'red'\n"
-        + "  ORDER BY S.sname\n" + "Plan used:\n" + " Sort (Pi(sname) (Sigma(B.color='red')  "
-        + "|><|  Pi(sname, bid) (S  |><|  R)))\n\n"
-        + "(Tests File scan, Index scan ,Projection,  index selection,\n "
-        + "sort and simple nested-loop join.)\n\n");
+    System.out.print(
+        "  SELECT   " + selectRel1 + "." + selectRel1Col + " " + selectRel2 + "." + selectRel2Col
+            + "\n" + "  FROM     " + rel1 + " " + rel2 + "\n" + "  WHERE    " + whereRel1 + "."
+            + whereRel1Col + " " + op_string[op] + " " + whereRel2 + "." + whereRel2Col + "\n");
 
     // Build Index first
     IndexType b_index = new IndexType(IndexType.B_Index);
 
-
-    // ExtendedSystemDefs.MINIBASE_CATALOGPTR.addIndex("sailors.in", "sid", b_index, 1);
-    // }
-    // catch (Exception e) {
-    // e.printStackTrace();
-    // System.err.print ("Failure to add index.\n");
-    // Runtime.getRuntime().exit(1);
-    // }
-
-
-
     CondExpr[] outFilter = new CondExpr[2];
     outFilter[0] = new CondExpr();
-    outFilter[1] = new CondExpr();
 
-    CondExpr[] outFilter2 = new CondExpr[3];
-    outFilter2[0] = new CondExpr();
-    outFilter2[1] = new CondExpr();
-    outFilter2[2] = new CondExpr();
+    outFilter[0].next = null;
+    outFilter[0].op = new AttrOperator(op);
+    outFilter[0].type1 = new AttrType(AttrType.attrSymbol);
+    outFilter[0].type2 = new AttrType(AttrType.attrSymbol);
+    outFilter[0].operand1.symbol = new FldSpec(new RelSpec(RelSpec.outer), Integer.parseInt(whereRel1Col));
+    outFilter[0].operand2.symbol = new FldSpec(new RelSpec(RelSpec.innerRel), Integer.parseInt(whereRel2Col));
 
-    Query2_CondExpr(outFilter, outFilter2);
     Tuple t = new Tuple();
     t = null;
 
-    AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),
-        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrReal)};
-
-    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),};
-
+    AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
+        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), };
     short[] Ssizes = new short[1];
     Ssizes[0] = 30;
-    AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
-        new AttrType(AttrType.attrString),};
 
+    AttrType[] Rtypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger), };
     short[] Rsizes = new short[1];
-    Rsizes[0] = 15;
-    AttrType[] Btypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrString),
-        new AttrType(AttrType.attrString),};
+    Rsizes[0] = 30;
 
-    short[] Bsizes = new short[2];
-    Bsizes[0] = 30;
-    Bsizes[1] = 20;
     AttrType[] Jtypes = {new AttrType(AttrType.attrString), new AttrType(AttrType.attrInteger),};
-
     short[] Jsizes = new short[1];
     Jsizes[0] = 30;
-    AttrType[] JJtype = {new AttrType(AttrType.attrString),};
 
-    short[] JJsize = new short[1];
-    JJsize[0] = 30;
     FldSpec[] proj1 =
-        {new FldSpec(new RelSpec(RelSpec.outer), 2), new FldSpec(new RelSpec(RelSpec.innerRel), 2)}; // S.sname,
-                                                                                                     // R.bid
-
-    FldSpec[] proj2 = {new FldSpec(new RelSpec(RelSpec.outer), 1)};
+        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.innerRel), 1)}; // S.1,
+                                                                                                     // R.1
 
     FldSpec[] Sprojection =
-        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 2),
-        // new FldSpec(new RelSpec(RelSpec.outer), 3),
-        // new FldSpec(new RelSpec(RelSpec.outer), 4)
-        };
+        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 3),}; //column to project S
+    
+    // FldSpec[] Rprojection =
+    //     {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 3),}; //column to project R
 
     CondExpr[] selects = new CondExpr[1];
     selects[0] = null;
@@ -479,7 +411,7 @@ class JoinsDriver implements GlobalConst {
     }
     Heapfile f = null;
     try {
-      f = new Heapfile("sailors.in");
+      f = new Heapfile("S.in");
     } catch (Exception e) {
       status = FAIL;
       e.printStackTrace();
@@ -548,12 +480,11 @@ class JoinsDriver implements GlobalConst {
     // *******************close an scan on the heapfile**************
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    System.out.print("After Building btree index on sailors.sid.\n\n");
+    System.out.print("After Building btree index on S.sid\n\n");
     try {
-      am = new IndexScan(b_index, "sailors.in", "BTreeIndex", Stypes, Ssizes, 4, 2, Sprojection,
-          null, 1, false);
+      am = new IndexScan(b_index, "S.in", "BTreeIndex", Stypes, Ssizes, 4, 2, Sprojection,
+          null, 1, false); //1: col to index in S
     }
-
     catch (Exception e) {
       System.err.println("*** Error creating scan for Index scan");
       System.err.println("" + e);
@@ -563,7 +494,8 @@ class JoinsDriver implements GlobalConst {
 
     NestedLoopsJoins nlj = null;
     try {
-      nlj = new NestedLoopsJoins(Stypes2, 2, Ssizes, Rtypes, 3, Rsizes, 10, am, "reserves.in",
+      System.out.println("nlj");
+      nlj = new NestedLoopsJoins(Stypes2, 2, Ssizes, Rtypes2, 2, Rsizes, 10, am, "R.in",
           outFilter, null, proj1, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
@@ -572,29 +504,18 @@ class JoinsDriver implements GlobalConst {
       Runtime.getRuntime().exit(1);
     }
 
-    NestedLoopsJoins nlj2 = null;
+    t = null;
     try {
-      nlj2 = new NestedLoopsJoins(Jtypes, 2, Jsizes, Btypes, 3, Bsizes, 10, nlj, "boats.in",
-          outFilter2, null, proj2, 1);
+      while ((t = nlj.get_next()) != null) {
+        System.out.println("dans la boucle get_next");
+        t.print(Jtypes);
+      }
     } catch (Exception e) {
-      System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
+      e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
-
-    TupleOrder ascending = new TupleOrder(TupleOrder.Ascending);
-    Sort sort_names = null;
-    try {
-      sort_names = new Sort(JJtype, (short) 1, JJsize, (iterator.Iterator) nlj2, 1, ascending,
-          JJsize[0], 10);
-    } catch (Exception e) {
-      System.err.println("*** Error preparing for nested_loop_join");
-      System.err.println("" + e);
-      Runtime.getRuntime().exit(1);
-    }
-
   }
-
 
   private void Disclaimer() {
     System.out.print("\n\nAny resemblance of persons in this database to"
