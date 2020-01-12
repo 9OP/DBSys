@@ -103,11 +103,9 @@ class JoinsDriver implements GlobalConst {
           parsedAttrs[i] = Integer.parseInt(tableAttrs[i]);
         }
         if (isR) { 
-          System.out.println("Populating R.txt");
           table.addElement(new R(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
         else if (isS) {
-          System.out.println("Populating S.txt");
           table.addElement(new S(parsedAttrs[0], parsedAttrs[1], parsedAttrs[2], parsedAttrs[3]));
         }
         // read next line
@@ -141,12 +139,6 @@ class JoinsDriver implements GlobalConst {
     String remove_logcmd = remove_cmd + logpath;
     String remove_dbcmd = remove_cmd + dbpath;
     String remove_joincmd = remove_cmd + dbpath;
-
-
-
-    for (Object obj : s) {
-        System.out.println(obj);
-    }
 
     try {
       Runtime.getRuntime().exec(remove_logcmd);
