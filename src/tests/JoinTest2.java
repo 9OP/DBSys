@@ -383,8 +383,9 @@ class JoinsDriver implements GlobalConst {
     try {
       Query_nlj("/../../QueriesData_newvalues/query_1a.txt"); // Single predicate query 1a NLJ
       Query_nlj("/../../QueriesData_newvalues/query_1b.txt"); // Double predicate query 1b NLJ
-      Query_nlj("/../../QueriesData_newvalues/query_2a.txt"); // Single predicate query 2a IEJoin
-      Query_nlj("/../../QueriesData_newvalues/query_2b.txt"); // Double predicate query 2a IEJoin
+      Query_nlj("/../../QueriesData_newvalues/query_2a.txt"); // Single predicate query 2a NLJ
+      Query_iej("/../../QueriesData_newvalues/query_2a.txt"); // Single predicate query 2a IEJoin
+      //Query_nlj("/../../QueriesData_newvalues/query_2b.txt"); // Double predicate query 2a IEJoin
     } catch (FileNotFoundException ex) {
       ex.printStackTrace();
     } catch (IOException ex) {
@@ -494,7 +495,8 @@ class JoinsDriver implements GlobalConst {
   }
 
   public void Query_nlj(String query_path) throws FileNotFoundException, IOException {
-    System.out.println("******** " + query_path + " ********");
+    System.out.println("\n\n******** " + query_path + " ********");
+    System.out.println(">>> Nested Loop Join\n");
     boolean status = OK;
     CondExpr[] outFilter = new CondExpr[3];
     Integer[] cols= new Integer[2];
@@ -550,6 +552,72 @@ class JoinsDriver implements GlobalConst {
     t = null;
     try {
       while ((t = nlj.get_next()) != null) {
+        t.print(Jtypes);
+      }
+    } catch (Exception e) {
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+  }
+
+  public void Query_iej(String query_path) throws FileNotFoundException, IOException {
+    System.out.println("\n\n******** " + query_path + " ********");
+    System.out.println(">>> Inequality Join\n");
+    boolean status = OK;
+    CondExpr[] outFilter = new CondExpr[3];
+    Integer[] cols= new Integer[2];
+    String[] relations = new String[2]; //innerRelation, outerRelation
+    CondExpr(outFilter, query_path, cols, relations);
+    String innerRelation = new String(relations[0]);
+    String outerRelation = new String(relations[1]);
+
+    Tuple t = new Tuple();
+    t = null;
+
+    AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
+        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Ssizes = new short[1];
+    Ssizes[0] = 30;
+
+    AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
+        new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Rsizes = new short[1];
+    Rsizes[0] = 30;
+
+    AttrType[] Jtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
+    short[] Jsizes = new short[1];
+    Jsizes[0] = 30;
+
+
+    FldSpec[] proj = {new FldSpec(new RelSpec(RelSpec.innerRel), cols[1]), // R
+        new FldSpec(new RelSpec(RelSpec.outer), cols[0])}; // S
+
+    FldSpec[] Sprojection =
+        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 2),
+            new FldSpec(new RelSpec(RelSpec.outer), 3), new FldSpec(new RelSpec(RelSpec.outer), 4)};
+
+    FileScan am = null;
+    try {
+      am = new FileScan(outerRelation+".in", Stypes, Ssizes, (short) 4, (short) 4, Sprojection, null);
+    } catch (Exception e) {
+      status = FAIL;
+      System.err.println("" + e);
+    }
+
+    IEJoin iej = null;
+    try {
+      iej = new IEJoin(Stypes, 4, null, 10, am, innerRelation+".in", outFilter, proj, 2);
+    } catch (Exception e) {
+      System.err.println("*** Error preparing for nested_loop_join");
+      System.err.println("" + e);
+      e.printStackTrace();
+      Runtime.getRuntime().exit(1);
+    }
+
+    t = null;
+    try {
+      while ((t = iej.get_next()) != null) {
         t.print(Jtypes);
       }
     } catch (Exception e) {
