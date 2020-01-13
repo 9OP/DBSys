@@ -36,7 +36,7 @@ public class RID{
    */
   public void copyRid (RID rid)
     {
-      pageNo = rid.pageNo;
+      pageNo.copyPageId(rid.pageNo);
       slotNo = rid.slotNo;
     }
   
