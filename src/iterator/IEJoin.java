@@ -19,7 +19,7 @@ public class IEJoin extends Iterator {
     private AttrType _in1[];
     private int in1_len;
     private Sort outer;
-    private Sort inner;
+    private Scan inner;
     private short t1_str_sizescopy[];
     private CondExpr OutputFilter[];
     private int n_buf_pgs; // # of buffer pages available.
@@ -142,7 +142,7 @@ public class IEJoin extends Iterator {
                 }
 
                 try {
-                    inner = outer; // TODO: this is for single predicate. change for others.
+                    inner = hf.openScan(); // TODO: this is for single predicate. change for others.
                 } catch (Exception e) {
                     throw new NestedLoopException(e, "openScan failed");
                 }
@@ -159,9 +159,10 @@ public class IEJoin extends Iterator {
             // while the inner is not completely scanned && there
             // is no match (with pred),get a tuple from the inner.
 
-            while ((inner_tuple = inner.get_next()) != null) {
+            while ((inner_tuple = inner.getNext(new RID())) != null) {
                 inner_tuple.setHdr((short) in1_len, _in1, t1_str_sizescopy);
                 if (PredEval.Eval(OutputFilter, outer_tuple, inner_tuple, _in1, _in1) == true) {
+                    // System.out.println("********************PROJECTING*******************");
                     // Apply a projection on the outer and inner tuples.
                     Projection.Join(outer_tuple, _in1, inner_tuple, _in1, Jtuple, perm_mat,
                             nOutFlds);
