@@ -18,7 +18,6 @@ import java.util.*;
 public class IEJoin extends Iterator {
     private AttrType _in1[];
     private int in1_len;
-    private int inner_i, outer_i;
     private Sort outer;
     private Sort inner;
     private short t1_str_sizescopy[];
@@ -39,6 +38,7 @@ public class IEJoin extends Iterator {
      * @param len_in1      # of columns in R.
      * @param t1_str_sizes shows the length of the string fields.
      * @param amt_of_mem   IN PAGES
+     * @param am           access method for left i/p to join
      * @param relationName access hfapfile for right i/p to join
      * @param outFilter    select expressions
      * @param proj_list    shows what input fields go where in the output tuple
@@ -47,7 +47,7 @@ public class IEJoin extends Iterator {
      * @exception NestedLoopException exception from this class
      */
     public IEJoin(AttrType in1[], int len_in1, short t1_str_sizes[], int amt_of_mem, Iterator am,
-            String relationName, CondExpr outFilter[], int num_records, FldSpec proj_list[],
+            String relationName, CondExpr outFilter[], FldSpec proj_list[],
             int n_out_flds) throws IOException, NestedLoopException {
 
         _in1 = new AttrType[in1.length];
