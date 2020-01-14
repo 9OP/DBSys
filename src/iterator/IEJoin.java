@@ -17,9 +17,13 @@ import java.util.*;
 
 public class IEJoin extends Iterator {
     private AttrType _in1[];
+    int inner_i = 0;
+    int outer_i = 0;
     private int in1_len;
     private Sort outer;
-    private Scan inner;
+    private Sort inner;
+    private Iterator _am;
+    private TupleOrder order;
     private short t1_str_sizescopy[];
     private CondExpr OutputFilter[];
     private int n_buf_pgs; // # of buffer pages available.
@@ -30,6 +34,7 @@ public class IEJoin extends Iterator {
     private FldSpec perm_mat[];
     private int nOutFlds;
     private Heapfile hf;
+    private ArrayList<Tuple> sortedTuples;
 
     /**
      * constructor Initialize the two relations which are joined, including relation type,
@@ -51,11 +56,13 @@ public class IEJoin extends Iterator {
             int n_out_flds) throws IOException, NestedLoopException {
 
         _in1 = new AttrType[in1.length];
+        sortedTuples = new ArrayList<>();
         System.arraycopy(in1, 0, _in1, 0, in1.length);
         in1_len = len_in1;
         inner_tuple = new Tuple();
         Jtuple = new Tuple();
         t1_str_sizescopy = t1_str_sizes;
+        _am = am;
 
         OutputFilter = outFilter;
         n_buf_pgs = amt_of_mem;
@@ -68,8 +75,6 @@ public class IEJoin extends Iterator {
 
         perm_mat = proj_list;
         nOutFlds = n_out_flds;
-
-        TupleOrder order;
 
         // Sort differently depending on the operator
         if (outFilter[0].op.attrOperator == AttrOperator.aopGT
@@ -84,6 +89,9 @@ public class IEJoin extends Iterator {
             //TODO: is this really only for the operand 1?
             outer = new Sort(in1, (short) len_in1, t1_str_sizes, am,
                     outFilter[0].operand1.symbol.offset, order, 30, n_buf_pgs);
+            while((outer_tuple = outer.get_next())!= null) {
+                sortedTuples.add(new Tuple(outer_tuple));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,57 +133,22 @@ public class IEJoin extends Iterator {
             SortException, LowMemException, UnknowAttrType, UnknownKeyTypeException, Exception {
         // This is a DUMBEST form of a join, not making use of any key information...
 
-        if (done)
-            return null;
+        while (outer_i < sortedTuples.size()) {
 
-        do {
-            // If get_from_outer is true, Get a tuple from the outer, delete
-            // an existing scan on the file, and reopen a new scan on the file.
-            // If a get_next on the outer returns DONE?, then the nested loops
-            // join is done too.
-
-            if (get_from_outer == true) {
-                get_from_outer = false;
-                if (inner != null) // If this not the first time,
-                {
-                    inner = null;
-                }
-
-                try {
-                    inner = hf.openScan(); // TODO: this is for single predicate. change for others.
-                } catch (Exception e) {
-                    throw new NestedLoopException(e, "openScan failed");
-                }
-                if ((outer_tuple = outer.get_next()) == null) {
-                    done = true;
-                    if (inner != null) {
-                        inner = null;
-                    }
-                    return null;
-                }
-            } // ENDS: if (get_from_outer == TRUE)
-
-            // The next step is to get a tuple from the inner,
-            // while the inner is not completely scanned && there
-            // is no match (with pred),get a tuple from the inner.
-
-            while ((inner_tuple = inner.getNext(new RID())) != null) {
-                inner_tuple.setHdr((short) in1_len, _in1, t1_str_sizescopy);
-                if (PredEval.Eval(OutputFilter, outer_tuple, inner_tuple, _in1, _in1) == true) {
-                    // System.out.println("********************PROJECTING*******************");
-                    // Apply a projection on the outer and inner tuples.
-                    Projection.Join(outer_tuple, _in1, inner_tuple, _in1, Jtuple, perm_mat,
-                            nOutFlds);
-                    return Jtuple;
-                }
+            outer_tuple = sortedTuples.get(outer_i);
+            inner_tuple = sortedTuples.get(inner_i);
+            
+            //TODO: add support for <= and >=
+            while(TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), outer_tuple, OutputFilter[0].operand1.symbol.offset, inner_tuple, OutputFilter[0].operand1.symbol.offset) != 0) {
+                Projection.Join(outer_tuple, _in1, inner_tuple, _in1, Jtuple, perm_mat, nOutFlds);
+                inner_i++;
+                inner_tuple = sortedTuples.get(inner_i);
+                return Jtuple;
             }
-
-            // There has been no match. (otherwise, we would have
-            // returned from t//he while loop. Hence, inner is
-            // exhausted, => set get_from_outer = TRUE, go to top of loop
-
-            get_from_outer = true; // Loop back to top and get next outer tuple.
-        } while (true);
+            outer_i++;
+            inner_i = 0;
+        }
+        return null;
     }
 
     /**
