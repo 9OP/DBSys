@@ -607,7 +607,7 @@ class JoinsDriver implements GlobalConst {
 
     IEJoin iej = null;
     try {
-      iej = new IEJoin(Stypes, 4, null, 10, am, innerRelation+".in", outFilter, proj, 2);
+      iej = new IEJoin(Stypes, 4, null,8, am, innerRelation+".in", outFilter, proj, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
