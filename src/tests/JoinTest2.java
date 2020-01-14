@@ -1,5 +1,6 @@
 package tests;
 
+import java.util.concurrent.TimeUnit;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -495,6 +496,7 @@ class JoinsDriver implements GlobalConst {
   }
 
   public void Query_nlj(String query_path) throws FileNotFoundException, IOException {
+    long startTime = System.nanoTime();
     System.out.println("\n\n******** " + query_path + " ********");
     System.out.println(">>> Nested Loop Join\n");
     boolean status = OK;
@@ -548,11 +550,14 @@ class JoinsDriver implements GlobalConst {
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
+    long endTime = System.nanoTime();
+    long elapsedTime = (endTime - startTime);
+    System.out.println("Execution time in us: "+elapsedTime/1000+"\n");
 
     t = null;
     try {
       while ((t = nlj.get_next()) != null) {
-        t.print(Jtypes);
+        ; //t.print(Jtypes);
       }
     } catch (Exception e) {
       System.err.println("" + e);
@@ -562,6 +567,7 @@ class JoinsDriver implements GlobalConst {
   }
 
   public void Query_iej(String query_path) throws FileNotFoundException, IOException {
+    long startTime = System.nanoTime();
     System.out.println("\n\n******** " + query_path + " ********");
     System.out.println(">>> Inequality Join\n");
     boolean status = OK;
@@ -607,18 +613,21 @@ class JoinsDriver implements GlobalConst {
 
     IEJoin iej = null;
     try {
-      iej = new IEJoin(Stypes, 4, null,8, am, innerRelation+".in", outFilter, proj, 2);
+      iej = new IEJoin(Stypes, 4, null, 10, am, innerRelation+".in", outFilter, proj, 2);
     } catch (Exception e) {
       System.err.println("*** Error preparing for nested_loop_join");
       System.err.println("" + e);
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
+    long endTime = System.nanoTime();
+    long elapsedTime = endTime - startTime;
+    System.out.println("Execution time in us: "+elapsedTime/1000+"\n");
 
     t = null;
     try {
       while ((t = iej.get_next()) != null) {
-        t.print(Jtypes);
+        ; //t.print(Jtypes);
       }
     } catch (Exception e) {
       System.err.println("" + e);
@@ -642,7 +651,7 @@ public class JoinTest2 {
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
     // JavabaseDB.openDB("/tmp/nwangdb", 5000);
 
-    Integer maxRows = 3;
+    Integer maxRows = 20;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
     System.out.print("JoinTest2 start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
