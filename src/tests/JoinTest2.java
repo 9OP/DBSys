@@ -557,7 +557,7 @@ class JoinsDriver implements GlobalConst {
     t = null;
     try {
       while ((t = nlj.get_next()) != null) {
-        ; //t.print(Jtypes);
+        t.print(Jtypes);
       }
     } catch (Exception e) {
       System.err.println("" + e);
@@ -627,7 +627,7 @@ class JoinsDriver implements GlobalConst {
     t = null;
     try {
       while ((t = iej.get_next()) != null) {
-        ; //t.print(Jtypes);
+        t.print(Jtypes);
       }
     } catch (Exception e) {
       System.err.println("" + e);
@@ -651,7 +651,7 @@ public class JoinTest2 {
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
     // JavabaseDB.openDB("/tmp/nwangdb", 5000);
 
-    Integer maxRows = 20;
+    Integer maxRows = 3;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
     System.out.print("JoinTest2 start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
