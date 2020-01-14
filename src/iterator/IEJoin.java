@@ -133,49 +133,23 @@ public class IEJoin extends Iterator {
             SortException, LowMemException, UnknowAttrType, UnknownKeyTypeException, Exception {
         // This is a DUMBEST form of a join, not making use of any key information...
 
-
         while (outer_i < sortedTuples.size()) {
 
-            inner_i = 0;
             outer_tuple = sortedTuples.get(outer_i);
             inner_tuple = sortedTuples.get(inner_i);
-            System.out.println("outer:" + outer_i);
-
-            // System.out.println("OUTER");
-            // outer_tuple.print(_in1);
             
             //TODO: add support for <= and >=
-            while(TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), outer_tuple, 3, inner_tuple, 3) != 0) {
-                System.out.println("inner:" + inner_i);
+            while(TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), outer_tuple, OutputFilter[0].operand1.symbol.offset, inner_tuple, OutputFilter[0].operand1.symbol.offset) != 0) {
+                Projection.Join(outer_tuple, _in1, inner_tuple, _in1, Jtuple, perm_mat, nOutFlds);
                 inner_i++;
                 inner_tuple = sortedTuples.get(inner_i);
                 return Jtuple;
             }
-            //     // System.out.println("INNER");
-            //     // inner_tuple.print(_in1);
-            //     // if (PredEval.Eval(OutputFilter, outer_tuple, inner_tuple, _in1, _in1) == true) {
-            //     //     //     // Apply a projection on the outer and inner tuples.
-            //     System.out.println(inner_i);
-            //     Projection.Join(outer_tuple, _in1, inner_tuple, _in1, Jtuple, perm_mat, nOutFlds);
-
-            //     AttrType[] attrTypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-            //     Jtuple.print(attrTypes);
-                    
-
-            //     inner_i++;
-            //     inner_tuple = sortedTuples.get(inner_i);
-
-            //     // return Jtuple;
-
-            // }
             outer_i++;
+            inner_i = 0;
         }
         return null;
     }
-
-            // There has been no match. (otherwise, we would have
-            // returned from t//he while loop. Hence, inner is
-            // exhausted, => set get_from_outer = TRUE, go to top of loop
 
     /**
      * implement the abstract method close() from super class Iterator to finish cleaning up
