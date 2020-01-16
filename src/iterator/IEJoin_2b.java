@@ -17,8 +17,8 @@ import java.util.*;
 
 public class IEJoin_2b extends Iterator {
     private AttrType _in1[];
-    int inner_i;
-    int outer_i = 0;
+    int j;
+    int i = 0;
     private int in1_len;
     private Sort outer;
     private Sort inner;
@@ -87,7 +87,7 @@ public class IEJoin_2b extends Iterator {
 
         for (int i = 0; i < 2; ++i) {
             if (outFilter[i].op.attrOperator == AttrOperator.aopGT
-                    || outFilter[0].op.attrOperator == AttrOperator.aopGE) {
+                    || outFilter[i].op.attrOperator == AttrOperator.aopGE) {
                 order[i] = new TupleOrder(TupleOrder.Ascending);
             } else {
                 order[i] = new TupleOrder(TupleOrder.Descending);
@@ -95,13 +95,13 @@ public class IEJoin_2b extends Iterator {
 
             // initialize eq off
             if (outFilter[i].op.attrOperator == AttrOperator.aopGE ||  outFilter[i].op.attrOperator == AttrOperator.aopLE) {
-                eqOff_arr[i] = false;
-            } else {
                 eqOff_arr[i] = true;
+            } else {
+                eqOff_arr[i] = false;
             }
         }
 
-        eqOff = eqOff_arr[0] && eqOff_arr[1];
+        eqOff = !(eqOff_arr[0] && eqOff_arr[1]);
 
         // Sort differently depending on the operator
 
@@ -113,7 +113,6 @@ public class IEJoin_2b extends Iterator {
 
             Tuple tuple;
             while ((tuple = sort_object.get_next()) != null) {
-                tuple.print(_in1);
                 L1.add(new Tuple(tuple));
                 L2.add(new Tuple(tuple));
             }
@@ -121,7 +120,8 @@ public class IEJoin_2b extends Iterator {
             //L1 is already sorted. we need to sort L2.
 
             int fldNo = outFilter[1].operand1.symbol.offset;
-            if (order[1] == new TupleOrder(TupleOrder.Ascending)) {
+            System.out.println(order[1].tupleOrder);
+            if (order[1].tupleOrder == TupleOrder.Descending) {
                 Collections.sort(L2, new Comparator<Tuple>() {
                     @Override
                     public int compare(Tuple t1, Tuple t2) {
@@ -153,32 +153,23 @@ public class IEJoin_2b extends Iterator {
                 });
             }
 
-            for(Tuple l2: L2) {
-                l2.print(_in1);
-            }
-
-            for(Tuple l1: L1) {
-                l1.print(_in1);
-            }
-
             // Create P such that P[i] = j when L1[j] = L2[i]
             n = L1.size();
 
             P = new int[n];
             B = new boolean[n];
-            // System.out.print("[");
-            // for (int i=0; i < n; i++) {
-            //     Tuple L2_tuple = L2.get(i);
-            //     for(int j=0; i < L1.size(); i++) {
-            //         if (TupleUtils.Equal(L2_tuple, L1.get(j), _in1, len_in1)) {
-            //             P[i] = j;
-            //             // System.out.print(j + ", ");
-            //         }
-            //     }
-            // }
-            // System.out.print("]");
 
-            inner_i = P[outer_i] + (eqOff? 1: 0);
+            System.out.print("P = [");
+            for (int k=0; k < n; k++) {
+                Tuple L2_tuple = L2.get(k);
+                for(int l=0; l < L1.size(); l++) {
+                    if (TupleUtils.Equal(L2_tuple, L1.get(l), _in1, len_in1)) {
+                        P[k] = l;
+                        System.out.print(l + ", ");
+                    }
+                }
+            }
+            j = P[i] + (eqOff? 1: 0);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,18 +211,26 @@ public class IEJoin_2b extends Iterator {
             InvalidTypeException, PageNotReadException, TupleUtilsException, PredEvalException,
             SortException, LowMemException, UnknowAttrType, UnknownKeyTypeException, Exception {
 
-        while (outer_i < n) {
-            int pos = P[outer_i];
-            B[outer_i]= true;
-            while (inner_i < n) {
-                if (B[outer_i]) {
-                    Projection.Join(L1.get(P[outer_i]), _in1, L1.get(inner_i), _in1, Jtuple, perm_mat, nOutFlds);
-                    inner_i++;
+        
+        while (i < n) {
+            int pos = P[i];
+            B[pos]= true;
+            j = pos + (eqOff? 1: 0);
+            while (j < n) {
+                if (B[j]) {
+                    Tuple sol1 = L1.get(P[i]);
+                    Tuple sol2 = L1.get(j);
+                    Projection.Join(sol1, _in1, sol2, _in1, Jtuple, perm_mat, nOutFlds);
+                    if(j==n-1){
+                        i++;
+                    }
+                    j++;
                     return Jtuple;
+                } else {
+                    j++;
                 }
             }
-            outer_i++;
-            inner_i = P[pos] + (eqOff? 1: 0);
+            i++;
         }
         return null;
     }
