@@ -382,9 +382,9 @@ class JoinsDriver implements GlobalConst {
 
   public boolean runTests() {
     try {
-      Query("/../../QueriesData_newvalues/query_1a.txt", "NLJ"); // Single predicate query 1a NLJ
-      Query("/../../QueriesData_newvalues/query_1b.txt", "NLJ"); // Double predicate query 1b NLJ
-      Query("/../../QueriesData_newvalues/query_2a.txt", "NLJ"); // Single predicate query 2a NLJ
+      // Query("/../../QueriesData_newvalues/query_1a.txt", "NLJ"); // Single predicate query 1a NLJ
+      // Query("/../../QueriesData_newvalues/query_1b.txt", "NLJ"); // Double predicate query 1b NLJ
+      // Query("/../../QueriesData_newvalues/query_2a.txt", "NLJ"); // Single predicate query 2a NLJ
       Query("/../../QueriesData_newvalues/query_2a.txt", "IEJ_2a"); // Single predicate query 2a
                                                                     // IEJoin
       // Query("/../../QueriesData_newvalues/query_2b.txt", "NLJ"); // Double predicate query 2b NLJ
@@ -502,12 +502,16 @@ class JoinsDriver implements GlobalConst {
   public void Query(String query_path, String join_type) throws FileNotFoundException, IOException {
     long startTime = System.nanoTime();
     System.out.println("\n\n******** " + query_path + " ********");
-    System.out.println(">>> Nested Loop Join\n");
+    if (join_type.equals("NLJ")) {
+      System.out.println(">>> Nested Loop Join\n");
+    } else {
+      System.out.println(">>> IE Join\n");
+    }
     boolean status = OK;
     CondExpr[] outFilter = new CondExpr[3];
-    Integer[] cols = new Integer[2];
+    Integer[] select_cols = new Integer[2];
     String[] relations = new String[2]; // innerRelation, outerRelation
-    CondExpr(outFilter, query_path, cols, relations);
+    CondExpr(outFilter, query_path, select_cols, relations);
     String innerRelation = new String(relations[0]);
     String outerRelation = new String(relations[1]);
 
@@ -516,37 +520,44 @@ class JoinsDriver implements GlobalConst {
 
     AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-    short[] Ssizes = new short[1];
-    Ssizes[0] = 30;
+
+    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
 
     AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-    short[] Rsizes = new short[1];
-    Rsizes[0] = 30;
 
     AttrType[] Jtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-    short[] Jsizes = new short[1];
-    Jsizes[0] = 30;
 
+    FldSpec[] proj = {new FldSpec(new RelSpec(RelSpec.innerRel), select_cols[1]), // R
+        new FldSpec(new RelSpec(RelSpec.outer), select_cols[0])}; // S
 
-    FldSpec[] proj = {new FldSpec(new RelSpec(RelSpec.innerRel), cols[1]), // R
-        new FldSpec(new RelSpec(RelSpec.outer), cols[0])}; // S
-
-    FldSpec[] Sprojection =
-        {new FldSpec(new RelSpec(RelSpec.outer), 1), new FldSpec(new RelSpec(RelSpec.outer), 2),
-            new FldSpec(new RelSpec(RelSpec.outer), 3), new FldSpec(new RelSpec(RelSpec.outer), 4)};
+    FldSpec[] Sprojection = {
+        new FldSpec(new RelSpec(RelSpec.outer), 1),
+        new FldSpec(new RelSpec(RelSpec.outer), 2),
+        new FldSpec(new RelSpec(RelSpec.outer), 1),
+        new FldSpec(new RelSpec(RelSpec.outer), 4)
+    };
 
     FileScan am = null;
     try {
-      am = new FileScan(outerRelation + ".in", Stypes, Ssizes, (short) 4, (short) 4, Sprojection,
+      am = new FileScan(outerRelation + ".in", Stypes, null, (short) 4, (short) 4, Sprojection,
           null);
     } catch (Exception e) {
       status = FAIL;
       System.err.println("" + e);
     }
+    // try {
+    // while ((t = am.get_next()) != null) {
+    // System.out.print("am: ");
+    // t.print(Jtypes);
+    // }
+    // } catch (Exception e) {
+    // System.err.println("" + e);
+    // e.printStackTrace();
+    // Runtime.getRuntime().exit(1);
+    // }
 
 
-    
     NestedLoopsJoins nlj = null;
     IEJoin_2a iej_2a = null;
     IEJoin_2b iej_2b = null;
@@ -555,12 +566,12 @@ class JoinsDriver implements GlobalConst {
     try {
       if (join_type.equals("NLJ")) {
         nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, innerRelation + ".in",
-          outFilter, null, proj, 2);
+            outFilter, null, proj, 2);
       }
-      if (join_type.equals("IEJ_2a")) { 
+      if (join_type.equals("IEJ_2a")) {
         iej_2a = new IEJoin_2a(Stypes, 4, null, 10, am, innerRelation + ".in", outFilter, proj, 2);
       }
-      if (join_type.equals("IEJ_2b")) { 
+      if (join_type.equals("IEJ_2b")) {
         iej_2b = new IEJoin_2b(Stypes, 4, null, 10, am, innerRelation + ".in", outFilter, proj, 2);
       }
     } catch (Exception e) {
@@ -593,14 +604,6 @@ class JoinsDriver implements GlobalConst {
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
-  }
-  
-
-  private void Disclaimer() {
-    System.out.print("\n\nAny resemblance of persons in this database to"
-        + " people living or dead\nis purely coincidental. The contents of "
-        + "this database do not reflect\nthe views of the University,"
-        + " the Computer  Sciences Department or the\n" + "developers...\n\n");
   }
 }
 
