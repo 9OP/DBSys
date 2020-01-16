@@ -19,21 +19,14 @@ public class IEJoin_2a extends Iterator {
     private AttrType _in1[];
     int inner_i = 0;
     int outer_i = 0;
-    private int in1_len;
     private Sort outer;
-    private Sort inner;
-    private Iterator _am;
     private TupleOrder order;
-    private short t1_str_sizescopy[];
     private CondExpr OutputFilter[];
     private int n_buf_pgs; // # of buffer pages available.
-    private boolean done, // Is the join complete
-            get_from_outer; // if TRUE, a tuple is got from outer
     private Tuple outer_tuple, inner_tuple;
     private Tuple Jtuple; // Joined tuple
     private FldSpec perm_mat[];
     private int nOutFlds;
-    private Heapfile hf;
     private ArrayList<Tuple> sortedTuples;
 
     /**
