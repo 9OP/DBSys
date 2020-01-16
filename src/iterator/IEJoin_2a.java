@@ -15,7 +15,7 @@ import java.util.*;
  * This file contains an implementation of the IE Join algorithm as described in the VLDBJ paper.
  */
 
-public class IEJoin extends Iterator {
+public class IEJoin_2a extends Iterator {
     private AttrType _in1[];
     int inner_i = 0;
     int outer_i = 0;
@@ -51,7 +51,7 @@ public class IEJoin extends Iterator {
      * @exception IOException         some I/O fault
      * @exception NestedLoopException exception from this class
      */
-    public IEJoin(AttrType in1[], int len_in1, short t1_str_sizes[], int amt_of_mem, Iterator am,
+    public IEJoin_2a(AttrType in1[], int len_in1, short t1_str_sizes[], int amt_of_mem, Iterator am,
             String relationName, CondExpr outFilter[], FldSpec proj_list[],
             int n_out_flds) throws IOException, NestedLoopException {
 
