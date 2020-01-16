@@ -120,7 +120,6 @@ public class IEJoin_2b extends Iterator {
             //L1 is already sorted. we need to sort L2.
 
             int fldNo = outFilter[1].operand1.symbol.offset;
-            System.out.println(order[1].tupleOrder);
             if (order[1].tupleOrder == TupleOrder.Descending) {
                 Collections.sort(L2, new Comparator<Tuple>() {
                     @Override
@@ -152,6 +151,17 @@ public class IEJoin_2b extends Iterator {
                     }
                 });
             }
+            System.out.print("L1:");
+            for(Tuple l1: L1){
+                l1.print(_in1);
+            }
+            System.out.print("\nL2:");
+            for(Tuple l2: L2){
+                l2.print(_in1);
+            }
+            System.out.print("\n");
+            System.out.println(eqOff);
+
 
             // Create P such that P[i] = j when L1[j] = L2[i]
             n = L1.size();
@@ -210,27 +220,24 @@ public class IEJoin_2b extends Iterator {
             throws IOException, JoinsException, IndexException, InvalidTupleSizeException,
             InvalidTypeException, PageNotReadException, TupleUtilsException, PredEvalException,
             SortException, LowMemException, UnknowAttrType, UnknownKeyTypeException, Exception {
-
         
         while (i < n) {
             int pos = P[i];
             B[pos]= true;
-            j = pos + (eqOff? 1: 0);
             while (j < n) {
                 if (B[j]) {
                     Tuple sol1 = L1.get(P[i]);
                     Tuple sol2 = L1.get(j);
                     Projection.Join(sol1, _in1, sol2, _in1, Jtuple, perm_mat, nOutFlds);
-                    if(j==n-1){
-                        i++;
-                    }
                     j++;
                     return Jtuple;
-                } else {
-                    j++;
                 }
+                j++;
             }
             i++;
+            if(i<n){
+                j = P[i] + (eqOff? 1: 0);
+            }
         }
         return null;
     }
