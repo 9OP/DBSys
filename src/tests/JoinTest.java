@@ -590,7 +590,7 @@ class JoinsDriver implements GlobalConst {
 }
 
 
-public class JoinTest2 {
+public class JoinTest {
   public static void main(String argv[]) {
     boolean sortstatus;
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
@@ -598,7 +598,7 @@ public class JoinTest2 {
 
     Integer maxRows = 3;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
-    System.out.print("JoinTest2 start... \nRows loaded per relation R, S, Q: ");
+    System.out.print("JoinTest start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
     sortstatus = jjoin.runTests();
     if (sortstatus != true) {
