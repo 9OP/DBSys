@@ -78,10 +78,12 @@ class Database:
         ''' insert file (S.txt or R.txt) in database
         :param path: path to S.txt or R.txt
         '''
+        cpt = 0
         with open(path, 'r') as outfile:
             line = outfile.readline() # first line contains only attr types
             line = outfile.readline()
-            while line:
+            while line and cpt <3:
+                cpt += 1
                 record = [int(e) for e in line.split(',')]
                 self._insert_record(record, table)
                 line = outfile.readline().rstrip()
@@ -89,7 +91,7 @@ class Database:
 
     def _execute_query(self, path):
         self._cursor.execute('''
-            SELECT R.int1, S.int1 FROM R, S WHERE R.int3 < S.int3 AND R.int4 < S.int4
+            SELECT R.int1, S.int1 FROM R, S WHERE R.int3 < S.int3
         ''')
         res = self._cursor.fetchall()
         with open('Queries_result/'+path, 'w') as infile:

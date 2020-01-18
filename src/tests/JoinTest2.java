@@ -387,7 +387,7 @@ class JoinsDriver implements GlobalConst {
       Query("/../../QueriesData_newvalues/query_2a.txt", "NLJ"); // Single predicate query 2a NLJ
       Query("/../../QueriesData_newvalues/query_2a.txt", "IEJ_2a"); // Single predicate query 2a IEJoin
       Query("/../../QueriesData_newvalues/query_2b.txt", "NLJ"); // Double predicate query 2b NLJ
-      Query("/../../QueriesData_newvalues/query_2b.txt", "IEJ_2b"); // Double predicate query 2b EJoin
+      Query("/../../QueriesData_newvalues/query_2b.txt", "IEJ_2b"); // Double predicate query 2b IEJoin
     } catch (FileNotFoundException ex) {
       ex.printStackTrace();
     } catch (IOException ex) {
@@ -415,7 +415,7 @@ class JoinsDriver implements GlobalConst {
     String interPredicate = "";
     String[] op_string = {"=", "<", ">", "!=", "<=", ">="};
     Boolean doublePredicate = false;
-
+    
     try {
       BufferedReader query = new BufferedReader(new FileReader(pathToData + query_path));
       // Line1
@@ -519,52 +519,36 @@ class JoinsDriver implements GlobalConst {
     AttrType[] Stypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
 
-    AttrType[] Stypes2 = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
-
     AttrType[] Rtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger),
         new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
 
     AttrType[] Jtypes = {new AttrType(AttrType.attrInteger), new AttrType(AttrType.attrInteger)};
 
     FldSpec[] proj = {new FldSpec(new RelSpec(RelSpec.innerRel), select_cols[1]), // R
-        new FldSpec(new RelSpec(RelSpec.outer), select_cols[0])}; // S
+        new FldSpec(new RelSpec(RelSpec.outer), select_cols[0]),}; // S
 
     FldSpec[] Sprojection = {
         new FldSpec(new RelSpec(RelSpec.outer), 1),
-        new FldSpec(new RelSpec(RelSpec.outer), 2),
-        new FldSpec(new RelSpec(RelSpec.outer), 1),
-        new FldSpec(new RelSpec(RelSpec.outer), 4)
-    };
+        new FldSpec(new RelSpec(RelSpec.outer), 2), 
+        new FldSpec(new RelSpec(RelSpec.outer), 3),
+        new FldSpec(new RelSpec(RelSpec.outer), 4),
+      };
 
     FileScan am = null;
     try {
-      am = new FileScan(outerRelation + ".in", Stypes, null, (short) 4, (short) 4, Sprojection,
-          null);
+      am = new FileScan(outerRelation+".in", Stypes, null, (short) 4, (short) 4, Sprojection, null);
     } catch (Exception e) {
       status = FAIL;
       System.err.println("" + e);
     }
-    // try {
-    // while ((t = am.get_next()) != null) {
-    // System.out.print("am: ");
-    // t.print(Jtypes);
-    // }
-    // } catch (Exception e) {
-    // System.err.println("" + e);
-    // e.printStackTrace();
-    // Runtime.getRuntime().exit(1);
-    // }
-
 
     NestedLoopsJoins nlj = null;
     IEJoin_2a iej_2a = null;
     IEJoin_2b iej_2b = null;
 
-
     try {
       if (join_type.equals("NLJ")) {
-        nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, innerRelation + ".in",
-            outFilter, null, proj, 2);
+        nlj = new NestedLoopsJoins(Stypes, 4, null, Rtypes, 4, null, 10, am, innerRelation+".in", outFilter, null, proj, 2);
       }
       if (join_type.equals("IEJ_2a")) {
         iej_2a = new IEJoin_2a(Stypes, 4, null, 10, am, innerRelation + ".in", outFilter, proj, 2);
