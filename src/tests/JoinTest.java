@@ -562,23 +562,20 @@ class JoinsDriver implements GlobalConst {
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
-    long endTime = System.nanoTime();
-    long elapsedTime = (endTime - startTime);
-    System.out.println("Execution time in us: " + elapsedTime / 1000 + "\n");
 
     t = null;
     try {
       if (join_type.equals("NLJ")) {
         while ((t = nlj.get_next()) != null) {
-          t.print(Jtypes);
+          ; //t.print(Jtypes);
         }
       } else if (join_type.equals("IEJ_2a")) {
         while ((t = iej_2a.get_next()) != null) {
-          t.print(Jtypes);
+          ; //t.print(Jtypes);
         }
       } else if (join_type.equals("IEJ_2b")) {
         while ((t = iej_2b.get_next()) != null) {
-          t.print(Jtypes);
+          ; //t.print(Jtypes);
         }
       }
     } catch (Exception e) {
@@ -586,6 +583,10 @@ class JoinsDriver implements GlobalConst {
       e.printStackTrace();
       Runtime.getRuntime().exit(1);
     }
+
+    long endTime = System.nanoTime();
+    long elapsedTime = (endTime - startTime);
+    System.out.println("Execution time in us: " + elapsedTime / 1000 + "\n");
   }
 }
 
@@ -596,7 +597,7 @@ public class JoinTest {
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
     // JavabaseDB.openDB("/tmp/nwangdb", 5000);
 
-    Integer maxRows = 3;
+    Integer maxRows = 1000;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
     System.out.print("JoinTest start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
