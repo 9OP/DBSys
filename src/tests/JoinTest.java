@@ -597,7 +597,7 @@ public class JoinTest {
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
     // JavabaseDB.openDB("/tmp/nwangdb", 5000);
 
-    Integer maxRows = 1000;
+    Integer maxRows = 1500;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
     System.out.print("JoinTest start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
