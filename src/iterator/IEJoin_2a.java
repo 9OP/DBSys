@@ -20,7 +20,7 @@ public class IEJoin_2a extends Iterator {
     int inner_i = 0;
     int outer_i = 0;
     private int in1_len;
-    private Sort outer;
+    private Iterator outer;
     private Sort inner;
     private Iterator _am;
     private TupleOrder order;
@@ -87,10 +87,41 @@ public class IEJoin_2a extends Iterator {
         try {
             // sort the tuples on the attribute we are considering for the where clause
             //TODO: is this really only for the operand 1?
-            outer = new Sort(in1, (short) len_in1, t1_str_sizes, am,
-                    outFilter[0].operand1.symbol.offset, order, 30, n_buf_pgs);
+            outer = am;
             while((outer_tuple = outer.get_next())!= null) {
                 sortedTuples.add(new Tuple(outer_tuple));
+            }
+            int fldNo = outFilter[0].operand1.symbol.offset;
+            if (order.tupleOrder == TupleOrder.Descending) {
+                Collections.sort(sortedTuples, new Comparator<Tuple>() {
+                    @Override
+                    public int compare(Tuple t1, Tuple t2) {
+                        int result = 0;
+                        try {
+                            result = TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), t1, fldNo, t2, fldNo);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Runtime.getRuntime().exit(1);
+                        }
+                        return result;
+                    }
+                });
+            } else {
+                Collections.sort(sortedTuples, new Comparator<Tuple>() {
+                    @Override
+                    public int compare(Tuple t1, Tuple t2) {
+                        int result = 0;
+                        try {
+                            result = TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), t2, fldNo, t1, fldNo);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Runtime.getRuntime().exit(1);
+                        }
+                        return result;
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();

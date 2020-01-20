@@ -151,17 +151,6 @@ public class IEJoin_2b extends Iterator {
                     }
                 });
             }
-            // System.out.print("L1:");
-            // for(Tuple l1: L1){
-            //     l1.print(_in1);
-            // }
-            // System.out.print("\nL2:");
-            // for(Tuple l2: L2){
-            //     l2.print(_in1);
-            // }
-            // System.out.print("\n");
-            // System.out.println(eqOff);
-
 
             // Create P such that P[i] = j when L1[j] = L2[i]
             n = L1.size();
@@ -175,7 +164,6 @@ public class IEJoin_2b extends Iterator {
                 for(int l=0; l < L1.size(); l++) {
                     if (TupleUtils.Equal(L2_tuple, L1.get(l), _in1, len_in1)) {
                         P[k] = l;
-                        // System.out.print(l + ", ");
                     }
                 }
             }
