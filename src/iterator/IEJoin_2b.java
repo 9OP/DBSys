@@ -108,20 +108,20 @@ public class IEJoin_2b extends Iterator {
         try {
             // sort the tuples on the attribute we are considering for the where clause
 
-            Sort sort_object = new Sort(in1, (short) len_in1, t1_str_sizes, am,
-                    outFilter[0].operand1.symbol.offset, order[0], 30, n_buf_pgs); // sort with 1st predicate column
+            // Sort sort_object = new Sort(in1, (short) len_in1, t1_str_sizes, am,
+            //         outFilter[0].operand1.symbol.offset, order[0], 30, n_buf_pgs); // sort with 1st predicate column
 
             Tuple tuple;
-            while ((tuple = sort_object.get_next()) != null) {
+            while ((tuple = am.get_next()) != null) {
                 L1.add(new Tuple(tuple));
                 L2.add(new Tuple(tuple));
             }
 
-            //L1 is already sorted. we need to sort L2.
+            //Sort L1.
 
-            int fldNo = outFilter[1].operand1.symbol.offset;
-            if (order[1].tupleOrder == TupleOrder.Descending) {
-                Collections.sort(L2, new Comparator<Tuple>() {
+            int fldNo = outFilter[0].operand1.symbol.offset;
+            if (order[0].tupleOrder == TupleOrder.Ascending) {
+                Collections.sort(L1, new Comparator<Tuple>() {
                     @Override
                     public int compare(Tuple t1, Tuple t2) {
                         int result = 0;
@@ -136,12 +136,47 @@ public class IEJoin_2b extends Iterator {
                     }
                 });
             } else {
-                Collections.sort(L2, new Comparator<Tuple>() {
+                Collections.sort(L1, new Comparator<Tuple>() {
                     @Override
                     public int compare(Tuple t1, Tuple t2) {
                         int result = 0;
                         try {
                             result = TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), t2, fldNo, t1, fldNo);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Runtime.getRuntime().exit(1);
+                        }
+                        return result;
+                    }
+                });
+            }
+
+            //Sort L2.
+
+            int fldNo1 = outFilter[1].operand1.symbol.offset;
+            if (order[1].tupleOrder == TupleOrder.Descending) {
+                Collections.sort(L2, new Comparator<Tuple>() {
+                    @Override
+                    public int compare(Tuple t1, Tuple t2) {
+                        int result = 0;
+                        try {
+                            result = TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), t1, fldNo1, t2, fldNo1);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Runtime.getRuntime().exit(1);
+                        }
+                        return result;
+                    }
+                });
+            } else {
+                Collections.sort(L2, new Comparator<Tuple>() {
+                    @Override
+                    public int compare(Tuple t1, Tuple t2) {
+                        int result = 0;
+                        try {
+                            result = TupleUtils.CompareTupleWithTuple(new AttrType(AttrType.attrInteger), t2, fldNo1, t1, fldNo1);
                         }
                         catch (Exception e) {
                             e.printStackTrace();

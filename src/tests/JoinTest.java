@@ -382,10 +382,10 @@ class JoinsDriver implements GlobalConst {
 
   public boolean runTests() {
     try {
-      Query("/../../QueriesData_newvalues/query_1a.txt", "NLJ"); // Single predicate query 1a NLJ
-      Query("/../../QueriesData_newvalues/query_1b.txt", "NLJ"); // Double predicate query 1b NLJ
-      Query("/../../QueriesData_newvalues/query_2a.txt", "NLJ"); // Single predicate query 2a NLJ
-      Query("/../../QueriesData_newvalues/query_2a.txt", "IEJ_2a"); // Single predicate query 2a IEJoin
+      // Query("/../../QueriesData_newvalues/query_1a.txt", "NLJ"); // Single predicate query 1a NLJ
+      // Query("/../../QueriesData_newvalues/query_1b.txt", "NLJ"); // Double predicate query 1b NLJ
+      // Query("/../../QueriesData_newvalues/query_2a.txt", "NLJ"); // Single predicate query 2a NLJ
+      // Query("/../../QueriesData_newvalues/query_2a.txt", "IEJ_2a"); // Single predicate query 2a IEJoin
       Query("/../../QueriesData_newvalues/query_2b.txt", "NLJ"); // Double predicate query 2b NLJ
       Query("/../../QueriesData_newvalues/query_2b.txt", "IEJ_2b"); // Double predicate query 2b IEJoin
     } catch (FileNotFoundException ex) {
@@ -596,7 +596,7 @@ public class JoinTest {
     // SystemDefs global = new SystemDefs("bingjiedb", 100, 70, null);
     // JavabaseDB.openDB("/tmp/nwangdb", 5000);
 
-    Integer maxRows = 3;
+    Integer maxRows = 10;
     JoinsDriver jjoin = new JoinsDriver(maxRows);
     System.out.print("JoinTest start... \nRows loaded per relation R, S, Q: ");
     System.out.println(maxRows + "\n");
